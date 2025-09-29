@@ -1,0 +1,5 @@
+tetouan = free
+maril = 10dh
+rincon = 10dh
+tanger = 20dh
+the rest = 39dh

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Monalisa Store</title>
+    <link rel="stylesheet" href="admin-styles.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="image/logo.jpg" alt="Monalisa Logo" class="login-logo">
+                <h2>Monalisa Admin</h2>
+                <p>Accès réservé au propriétaire</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <input type="password" id="adminPassword" placeholder="Mot de passe" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard hidden">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <img src="image/logo.jpg" alt="Monalisa Logo" class="header-logo">
+                    <h1>Monalisa Admin</h1>
+                </div>
+                <div class="header-right">
+                    <button class="refresh-btn" id="refreshOrders">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalOrders">0</h3>
+                            <p>Commandes totales</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="todayOrders">0</h3>
+                            <p>Aujourd'hui</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalRevenue">0 MAD</h3>
+                            <p>Chiffre d'affaires</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="deliveryRevenue">0 MAD</h3>
+                            <p>Frais de livraison</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section class="orders-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Commandes récentes</h2>
+                    <div class="filters">
+                        <select id="statusFilter" aria-label="Filtrer par statut" title="Filtrer par statut">
+                            <option value="all">Toutes les commandes</option>
+                            <option value="new">Nouvelles</option>
+                            <option value="processing">En cours</option>
+                            <option value="completed">Terminées</option>
+                        </select>
+                        <button class="clear-all-btn" id="clearAllOrders">
+                            <i class="fas fa-trash"></i> Tout effacer
+                        </button>
+                    </div>
+                </div>
+
+                <div class="orders-container" id="ordersContainer">
+                    <div class="no-orders">
+                        <i class="fas fa-inbox"></i>
+                        <p>Aucune commande pour le moment</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
