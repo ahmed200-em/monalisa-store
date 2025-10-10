@@ -49,6 +49,19 @@
             </div>
         </header>
 
+        <!-- Navigation Tabs -->
+        <nav class="admin-nav">
+            <button class="nav-tab active" data-tab="orders">
+                <i class="fas fa-shopping-cart"></i> Commandes
+            </button>
+            <button class="nav-tab" data-tab="products">
+                <i class="fas fa-box"></i> Produits
+            </button>
+            <button class="nav-tab" data-tab="analytics">
+                <i class="fas fa-chart-line"></i> Analytiques
+            </button>
+        </nav>
+
         <!-- Stats Section -->
         <section class="stats-section">
             <div class="container">
@@ -119,6 +132,146 @@
                 </div>
             </div>
         </section>
+
+        <!-- Products Management Section -->
+        <section class="products-section hidden">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Gestion des Produits</h2>
+                    <button class="add-product-btn" id="addProductBtn">
+                        <i class="fas fa-plus"></i> Ajouter Produit
+                    </button>
+                </div>
+
+                <div class="products-grid" id="productsGrid">
+                    <!-- Products will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section class="analytics-section hidden">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Analytiques et Statistiques</h2>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-chart-bar"></i> Ventes par Produit</h3>
+                        <div class="analytics-content" id="salesByProductChart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-trending-up"></i> Tendance des Profits</h3>
+                        <div class="analytics-content" id="profitTrendChart">
+                            <!-- Chart will be rendered here -->
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-warehouse"></i> État des Stocks</h3>
+                        <div class="inventory-list" id="inventoryStatus">
+                            <!-- Inventory status will be shown here -->
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-dollar-sign"></i> Marges par Produit</h3>
+                        <div class="margins-content" id="productMargins">
+                            <!-- Product margins will be shown here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Product Modal -->
+        <div class="modal-overlay hidden" id="productModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Ajouter un Produit</h3>
+                    <button class="close-modal" id="closeProductModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productName">Nom du Produit *</label>
+                                <input type="text" id="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCategory">Catégorie *</label>
+                                <select id="productCategory" required>
+                                    <option value="">Sélectionner une catégorie</option>
+                                    <option value="pants">Pantalons</option>
+                                    <option value="blouses">Blouses</option>
+                                    <option value="shirts">Chemises</option>
+                                    <option value="accessories">Accessoires</option>
+                                    <option value="handbags">Sacs à main</option>
+                                    <option value="footwear">Chaussures</option>
+                                    <option value="perfumes">Parfums</option>
+                                    <option value="pajamas">Pyjamas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productPrice">Prix de Vente (MAD) *</label>
+                                <input type="number" id="productPrice" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCost">Prix d'Achat (MAD) *</label>
+                                <input type="number" id="productCost" min="0" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="productImage">URL de l'Image</label>
+                            <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>Couleurs *</label>
+                            <div class="color-inputs" id="colorInputs">
+                                <div class="color-input-group">
+                                    <input type="text" placeholder="Couleur" class="color-input">
+                                    <input type="number" placeholder="Quantité" min="0" class="size-quantity-input">
+                                    <button type="button" class="remove-color-btn">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" id="addColorBtn" class="add-color-btn">
+                                <i class="fas fa-plus"></i> Ajouter Couleur
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label>Tailles *</label>
+                            <div class="size-inputs" id="sizeInputs">
+                                <div class="size-input-group">
+                                    <input type="text" placeholder="Taille" class="size-input">
+                                    <input type="number" placeholder="Quantité" min="0" class="size-quantity-input">
+                                    <button type="button" class="remove-size-btn">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" id="addSizeBtn" class="add-size-btn">
+                                <i class="fas fa-plus"></i> Ajouter Taille
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <label for="productDescription">Description</label>
+                            <textarea id="productDescription" rows="3"></textarea>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="cancel-btn" id="cancelProductBtn">Annuler</button>
+                            <button type="submit" class="save-btn">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="admin.js"></script>
