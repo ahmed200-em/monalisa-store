@@ -95,9 +95,29 @@ class ShoppingCart {
     }
 
     addItem(productId, size, color, quantity = 1) {
-        const product = this.findProduct(productId);
+        const product = ProductManager.getProductById(productId) || this.findProduct(productId);
+        console.log('Adding item:', productId, 'Category:', product?.category);
         if (!product) {
             alert('Product not found!');
+            return;
+        }
+
+        // Check inventory availability
+        const inventoryKey = `${size}_${color}`;
+        const availableStock = product.inventory?.[inventoryKey]?.quantity || 999;
+
+        // Count how much is already in cart
+        const existingCartQuantity = this.items.reduce((total, item) => {
+            if (item.productId === productId && item.size === size && item.color === color) {
+                return total + item.quantity;
+            }
+            return total;
+        }, 0);
+
+        const totalRequestedQuantity = existingCartQuantity + quantity;
+
+        if (totalRequestedQuantity > availableStock) {
+            alert(`Désolé, seulement ${availableStock} pièces disponibles en stock (${size}, ${color}).`);
             return;
         }
 
@@ -564,126 +584,328 @@ class ShoppingCart {
 // Initialize cart
 const cart = new ShoppingCart();
 
-// Product display and modal functionality
+// Products from admin panel are automatically displayed in the store
+// Customers can browse products with real-time inventory information
+// Available colors, sizes, and stock levels are shown live
 class ProductDisplay {
     constructor() {
-        this.currentFilter = 'all';
+        this.availableVariants = [];
+        this.currentProductId = null;
         this.init();
     }
 
     init() {
-        this.bindEvents();
         this.displayProducts();
+        this.listenForUpdates();
     }
 
-    bindEvents() {
-        // Category filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.setActiveFilter(e.target);
-                this.currentFilter = e.target.dataset.category;
+    listenForUpdates() {
+        // Listen for product updates from admin
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'PRODUCTS_UPDATED') {
+                console.log('🔄 Received product update message from admin');
                 this.displayProducts();
-            });
-        });
-
-        // Modal events
-        const modal = document.getElementById('productModal');
-        const closeBtn = modal.querySelector('.close');
-
-        closeBtn.addEventListener('click', () => {
-            this.closeModal();
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                this.closeModal();
             }
         });
 
-        // Add to cart button
-        document.getElementById('addToCartBtn').addEventListener('click', () => {
-            this.addToCart();
+        // Also listen for storage changes (if admin is opened in another tab)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'monalisa_products') {
+                console.log('🔄 Products storage changed, refreshing display');
+                this.displayProducts();
+            }
         });
     }
 
-    setActiveFilter(activeBtn) {
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        activeBtn.classList.add('active');
+    getAllProducts() {
+        // Get admin-managed products through ProductManager
+        const adminProducts = ProductManager.getAllProducts();
+        console.log(`📊 Found ${adminProducts.length} admin products`);
+
+        return adminProducts;
     }
 
     displayProducts() {
         const grid = document.getElementById('productsGrid');
-        let allProducts = [];
-
-        // Collect all products or filtered products
-        if (this.currentFilter === 'all') {
-            for (const category in products) {
-                allProducts = allProducts.concat(products[category]);
-            }
-        } else {
-            allProducts = products[this.currentFilter] || [];
+        if (!grid) {
+            console.error('productsGrid element not found');
+            return;
         }
 
-        grid.innerHTML = allProducts.map(product => `
-            <div class="product-card" data-product-id="${product.id}">
-                <div class="product-image">
-                    <img src="${product.image}" alt="${product.name}" loading="lazy">
-                    <div class="product-overlay">
-                        <button class="btn btn-primary view-product" onclick="productDisplay.openModal('${product.id}')">
-                            View Details
+        const products = this.getAllProducts();
+
+        if (products.length === 0) {
+            grid.innerHTML = `
+                <div style="text-align: center; padding: 50px; color: #666;">
+                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
+                    <h3>Produits Non Disponibles</h3>
+                    <p>Les produits sont gérés manuellement par l'administration.</p>
+                    <p>Contactez-nous directement pour vos commandes.</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = products.map(product => {
+            const totalStock = this.calculateTotalStock(product);
+            const availableVariants = this.getAvailableVariants(product);
+            const variantText = this.getVariantSummary(availableVariants);
+
+            return `
+                <div class="product-card" onclick="productDisplay.openModal('${product.id}')">
+                    <div class="product-image">
+                        <img src="${product.image || 'image/placeholder.jpg'}" alt="${product.name}" loading="lazy">
+                        ${totalStock <= 3 ?
+                            '<span class="stock-badge low-stock">Stock Faible</span>' :
+                            '<span class="stock-badge in-stock">En Stock</span>'
+                        }
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-category">${product.category || 'Divers'}</p>
+                        <p class="product-price">${product.price} MAD</p>
+                        <div class="variant-info">
+                            <small style="color: #666;">${variantText}</small>
+                            <small style="color: #888;">Stock total: ${totalStock} pièce(s)</small>
+                        </div>
+                        <button class="add-to-cart-btn" onclick="event.stopPropagation(); productDisplay.openModal('${product.id}')">
+                            Voir Détails
                         </button>
                     </div>
                 </div>
-                <div class="product-info">
-                    <h3 class="product-name">${product.name}</h3>
-                    <p class="product-price">${product.price} MAD</p>
-                    <div class="product-meta">
-                        <span class="available-sizes">Sizes: ${product.sizes.join(', ')}</span>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
+
+        console.log(`🎯 Displayed ${products.length} products in the grid`);
+    }
+
+    calculateTotalStock(product) {
+        if (!product.inventory) return 0;
+
+        return Object.values(product.inventory).reduce((total, variant) => {
+            return total + (variant.quantity || 0);
+        }, 0);
+    }
+
+    getVariantSummary(variants) {
+        const colors = [...new Set(variants.map(v => v.color))];
+        const sizes = [...new Set(variants.map(v => v.size))];
+
+        let text = '';
+        if (colors.length > 0) {
+            text += `${colors.length} couleur${colors.length > 1 ? 's' : ''} • `;
+        }
+        if (sizes.length > 0) {
+            text += `${sizes.length} taille${sizes.length > 1 ? 's' : ''}`;
+        }
+
+        return text || 'Variantes disponibles';
     }
 
     openModal(productId) {
-        const product = this.findProduct(productId);
-        if (!product) return;
+        const product = ProductManager.getProductById(productId);
+        if (!product) {
+            alert('Produit non trouvé!');
+            return;
+        }
+
+        this.currentProductId = productId;
+        this.availableVariants = this.getAvailableVariants(product);
 
         // Populate modal with product data
-        document.getElementById('modalProductImage').src = product.image;
+        document.getElementById('modalProductImage').src = product.image || 'image/placeholder.jpg';
         document.getElementById('modalProductName').textContent = product.name;
         document.getElementById('modalProductPrice').textContent = `${product.price} MAD`;
-        document.getElementById('modalProductDescription').textContent = product.description;
+        document.getElementById('modalProductDescription').textContent = product.description || 'Produit géré par l\'administration';
 
-        // Populate size options
-        const sizeSelect = document.getElementById('sizeSelect');
-        sizeSelect.innerHTML = product.sizes.map(size =>
-            `<option value="${size}">${size}</option>`
-        ).join('');
+        // Clear any existing stock indicator
+        const existingIndicator = document.getElementById('stockIndicator');
+        if (existingIndicator) {
+            existingIndicator.remove();
+        }
 
-        // Populate color options
-        const colorSelect = document.getElementById('colorSelect');
-        colorSelect.innerHTML = product.colors.map(color =>
-            `<option value="${color}">${color}</option>`
-        ).join('');
+        this.populateSizeOptions();
+        this.populateColorOptions();
 
         // Reset quantity
         document.getElementById('quantityInput').value = 1;
+        this.updateQuantityLimits();
+        this.showAvailabilityInfo();
 
-        // Store current product ID
-        this.currentProductId = productId;
+        // Add event listeners for size/color change
+        const sizeSelect = document.getElementById('sizeSelect');
+        const colorSelect = document.getElementById('colorSelect');
+
+        sizeSelect.onchange = () => {
+            this.populateColorOptions();
+            this.updateQuantityLimits();
+            this.showAvailabilityInfo();
+        };
+        colorSelect.onchange = () => {
+            this.populateSizeOptions();
+            this.updateQuantityLimits();
+            this.showAvailabilityInfo();
+        };
 
         // Show modal
         document.getElementById('productModal').style.display = 'block';
         document.body.style.overflow = 'hidden';
     }
 
+    populateSizeOptions() {
+        const sizeSelect = document.getElementById('sizeSelect');
+        const selectedColor = document.getElementById('colorSelect').value;
+
+        const availableSizes = selectedColor ?
+            [...new Set(this.availableVariants.filter(v => v.color === selectedColor).map(v => v.size))] :
+            [...new Set(this.availableVariants.map(v => v.size))];
+
+        if (availableSizes.length > 0) {
+            sizeSelect.innerHTML = availableSizes.map(size => {
+                const count = this.availableVariants.filter(v => v.size === size).length;
+                return `<option value="${size}">${size} (${count} couleur(s))</option>`;
+            }).join('');
+        } else {
+            sizeSelect.innerHTML = '<option disabled selected>Pas de tailles disponibles</option>';
+        }
+
+        this.updateQuantityLimits();
+    }
+
+    populateColorOptions() {
+        const colorSelect = document.getElementById('colorSelect');
+        const selectedSize = document.getElementById('sizeSelect').value;
+
+        const availableColors = selectedSize ?
+            [...new Set(this.availableVariants.filter(v => v.size === selectedSize).map(v => v.color))] :
+            [...new Set(this.availableVariants.map(v => v.color))];
+
+        if (availableColors.length > 0) {
+            colorSelect.innerHTML = availableColors.map(color => {
+                const count = this.availableVariants.filter(v => v.color === color).length;
+                return `<option value="${color}">${color} (${count} taille(s) disponible)</option>`;
+            }).join('');
+        } else {
+            colorSelect.innerHTML = '<option disabled selected>Pas de couleurs disponibles</option>';
+        }
+
+        this.updateQuantityLimits();
+    }
+
+    getAvailableVariants(product) {
+        const variants = [];
+
+        if (product.inventory && Object.keys(product.inventory).length > 0) {
+            Object.entries(product.inventory).forEach(([key, data]) => {
+                const [size, color] = key.split('_');
+                const availableQty = Math.max(0, (data.quantity || 0) - (data.sold || 0));
+
+                if (availableQty > 0) {
+                    variants.push({
+                        size,
+                        color,
+                        key,
+                        availableQty,
+                        totalStock: data.quantity || 0
+                    });
+                }
+            });
+        }
+
+        return variants;
+    }
+
+    updateQuantityLimits() {
+        const sizeSelect = document.getElementById('sizeSelect');
+        const colorSelect = document.getElementById('colorSelect');
+        const quantityInput = document.getElementById('quantityInput');
+
+        const selectedSize = sizeSelect.value;
+        const selectedColor = colorSelect.value;
+
+        const variant = this.availableVariants.find(v =>
+            v.size === selectedSize && v.color === selectedColor
+        );
+
+        if (variant && variant.availableQty > 0) {
+            quantityInput.max = variant.availableQty;
+            quantityInput.placeholder = `Max: ${variant.availableQty}`;
+            if (parseInt(quantityInput.value) > variant.availableQty) {
+                quantityInput.value = variant.availableQty;
+            }
+        } else {
+            quantityInput.max = 1;
+            quantityInput.value = 1;
+            quantityInput.placeholder = 'Indisponible';
+        }
+    }
+
+    showAvailabilityInfo() {
+        const sizeSelect = document.getElementById('sizeSelect');
+        const colorSelect = document.getElementById('colorSelect');
+
+        const selectedSize = sizeSelect.value;
+        const selectedColor = colorSelect.value;
+
+        const variant = this.availableVariants.find(v =>
+            v.size === selectedSize && v.color === selectedColor
+        );
+
+        const descriptionEl = document.getElementById('modalProductDescription');
+        let stockIndicator = document.getElementById('stockIndicator');
+
+        if (!stockIndicator) {
+            stockIndicator = document.createElement('div');
+            stockIndicator.id = 'stockIndicator';
+            stockIndicator.style.fontWeight = 'bold';
+            stockIndicator.style.marginTop = '10px';
+            stockIndicator.style.padding = '8px 12px';
+            stockIndicator.style.borderRadius = '6px';
+            descriptionEl.parentNode.insertBefore(stockIndicator, descriptionEl.nextSibling);
+        }
+
+        if (variant) {
+            let statusText = '';
+            let backgroundColor = '';
+            let textColor = '';
+
+            if (variant.availableQty <= 0) {
+                statusText = '🔴 PRODUIT ÉPUISÉ';
+                backgroundColor = '#ffebee';
+                textColor = '#c62828';
+            } else if (variant.availableQty <= 3) {
+                statusText = `🔴 STOCK FAIBLE: ${variant.availableQty} pièce(s) disponible pour ${selectedSize}/${selectedColor}`;
+                backgroundColor = '#ffebee';
+                textColor = '#c62828';
+            } else if (variant.availableQty <= 10) {
+                statusText = `🟡 STOCK LIMITÉ: ${variant.availableQty} pièce(s) disponible pour ${selectedSize}/${selectedColor}`;
+                backgroundColor = '#fff3e0';
+                textColor = '#ef6c00';
+            } else {
+                statusText = `🟢 STOCK DISPONIBLE: ${variant.availableQty} pièce(s) disponible pour ${selectedSize}/${selectedColor}`;
+                backgroundColor = '#e8f5e8';
+                textColor = '#2e7d32';
+            }
+
+            stockIndicator.textContent = statusText;
+            stockIndicator.style.backgroundColor = backgroundColor;
+            stockIndicator.style.color = textColor;
+        } else {
+            stockIndicator.textContent = '';
+        }
+    }
+
     closeModal() {
         document.getElementById('productModal').style.display = 'none';
         document.body.style.overflow = 'auto';
         this.currentProductId = null;
+        this.availableVariants = [];
+
+        // Clear stock indicator
+        const stockIndicator = document.getElementById('stockIndicator');
+        if (stockIndicator) {
+            stockIndicator.remove();
+        }
     }
 
     addToCart() {
@@ -693,70 +915,24 @@ class ProductDisplay {
         const color = document.getElementById('colorSelect').value;
         const quantity = parseInt(document.getElementById('quantityInput').value);
 
+        if (!size || !color || quantity <= 0) {
+            alert('Veuillez sélectionner la taille, la couleur et la quantité.');
+            return;
+        }
+
+        // Check if variant exists and has stock
+        const variant = this.availableVariants.find(v =>
+            v.size === size && v.color === color
+        );
+
+        if (!variant || variant.availableQty < quantity) {
+            alert('Désolé, stock insuffisant pour cette variante.');
+            return;
+        }
+
         cart.addItem(this.currentProductId, size, color, quantity);
         this.closeModal();
     }
-
-    findProduct(productId) {
-        for (const category in products) {
-            const product = products[category].find(p => p.id === productId);
-            if (product) return product;
-        }
-        return null;
-    }
-}
-
-// Simple function to open product modal (for hardcoded products)
-function openProductModal(productId) {
-    if (window.productDisplay && window.productDisplay.openModal) {
-        window.productDisplay.openModal(productId);
-    } else {
-        // Fallback: find product and open modal manually
-        const product = findProductById(productId);
-        if (product) {
-            showProductModal(product);
-        }
-    }
-}
-
-// Helper function to find product by ID
-function findProductById(productId) {
-    for (const category in products) {
-        const product = products[category].find(p => p.id === productId);
-        if (product) return product;
-    }
-    return null;
-}
-
-// Simple modal display function
-function showProductModal(product) {
-    // Populate modal with product data
-    document.getElementById('modalProductImage').src = product.image;
-    document.getElementById('modalProductName').textContent = product.name;
-    document.getElementById('modalProductPrice').textContent = `${product.price} MAD`;
-    document.getElementById('modalProductDescription').textContent = product.description;
-
-    // Populate size options
-    const sizeSelect = document.getElementById('sizeSelect');
-    sizeSelect.innerHTML = product.sizes.map(size =>
-        `<option value="${size}">${size}</option>`
-    ).join('');
-
-    // Populate color options
-    const colorSelect = document.getElementById('colorSelect');
-    colorSelect.innerHTML = product.colors.map(color =>
-        `<option value="${color}">${color}</option>`
-    ).join('');
-
-    // Reset quantity
-    document.getElementById('quantityInput').value = 1;
-
-    // Store current product ID
-    window.currentProductId = product.id;
-
-    // Show modal
-    document.getElementById('productModal').style.display = 'block';
-    document.body.style.overflow = 'hidden';
 }
 
 // Initialize product display after DOM is loaded
@@ -766,3 +942,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Make it globally available
     window.productDisplay = productDisplay;
 });
+
+// Remove the old disable function since we're re-enabling product display
+// delete window.disableProductGrid;
+
+// END OF FILE - Product display functionality restored

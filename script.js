@@ -1,3 +1,89 @@
+// Product management utility for integrating static products with admin-managed products
+class ProductManager {
+    static getProducts() {
+        // Only return admin-managed products, not static products
+        // This ensures the storefront only shows products that have been properly managed
+        const adminProducts = JSON.parse(localStorage.getItem('monalisa_products')) || {};
+
+        // Filter out products with zero inventory before returning
+        const filteredProducts = {};
+
+        Object.keys(adminProducts).forEach(category => {
+            if (adminProducts[category] && adminProducts[category].length > 0) {
+                filteredProducts[category] = adminProducts[category]
+                    .map(product => this.convertAdminProductToFrontend(product))
+                    .filter(product => {
+                        // Calculate total available inventory for each product
+                        if (!product.inventory) return false;
+
+                        let totalStock = 0;
+                        Object.values(product.inventory).forEach(variant => {
+                            const quantity = variant.quantity || 0;
+                            const sold = variant.sold || 0;
+                            totalStock += Math.max(0, quantity - sold);
+                        });
+
+                        return totalStock > 0; // Only return products with available stock
+                    });
+            }
+        });
+
+        return filteredProducts;
+    }
+
+    static mergeProductData(existing, adminProduct) {
+        // Keep the best of both: admin data overrides static, but adds inventory info
+        return {
+            ...existing,
+            ...adminProduct,
+            inventory: adminProduct.inventory || existing.inventory,
+            cost: adminProduct.cost || existing.cost
+        };
+    }
+
+    static convertAdminProductToFrontend(adminProduct) {
+        console.log('🔄 Converting admin product to frontend:', adminProduct.name);
+        // Convert admin product structure to frontend-compatible format
+        const frontendProduct = {
+            id: adminProduct.id,
+            name: adminProduct.name,
+            price: adminProduct.price,
+            cost: adminProduct.cost,
+            image: adminProduct.image || 'https://via.placeholder.com/300x400/E91E63/FFFFFF?text=No+Image',
+            category: adminProduct.category,
+            description: adminProduct.description || 'Produit élégant et stylé pour toutes occasions.',
+            sizes: adminProduct.sizes || ['S', 'M', 'L', 'XL'],
+            colors: adminProduct.colors || ['Classic'],
+            inventory: adminProduct.inventory || {}
+        };
+
+        // Ensure image is valid URL
+        if (!frontendProduct.image || frontendProduct.image === 'null' || frontendProduct.image === '') {
+            frontendProduct.image = 'https://via.placeholder.com/300x400/E91E63/FFFFFF?text=' + encodeURIComponent(frontendProduct.name.substring(0, 20));
+        }
+
+        console.log('✅ Converted product:', frontendProduct.name, '→', frontendProduct.sizes.length, 'sizes,', frontendProduct.colors.length, 'colors');
+        return frontendProduct;
+    }
+
+    static getAllProducts() {
+        const categorizedProducts = this.getProducts();
+        const allProducts = [];
+
+        // Flatten all products into a single array
+        Object.values(categorizedProducts).forEach(productsArray => {
+            allProducts.push(...productsArray);
+        });
+
+        return allProducts;
+    }
+
+    static getProductById(productId) {
+        const allProducts = this.getAllProducts();
+        return allProducts.find(product => product.id === productId);
+    }
+}
+
 // Mobile Navigation Toggle
 const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
@@ -72,6 +158,42 @@ if (contactForm) {
     });
 }
 
+// Debug function for inventory testing
+window.testInventorySystem = () => {
+    console.log('🔍 Testing inventory system...');
+
+    // Check if ProductManager is working
+    const products = ProductManager.getProducts();
+    console.log('🛍️ Products loaded:', Object.keys(products).reduce((total, category) => total + products[category].length, 0), 'total products');
+
+    // Check admin products specifically
+    const adminProducts = JSON.parse(localStorage.getItem('monalisa_products') || '{}');
+    console.log('👨‍💼 Admin products in storage:', Object.keys(adminProducts).length, 'categories');
+
+    // Find first admin product and test inventory
+    let testProduct = null;
+    Object.entries(adminProducts).forEach(([category, products]) => {
+        if (!testProduct && products.length > 0) {
+            testProduct = products.find(p => p.inventory && Object.keys(p.inventory).length > 0);
+        }
+    });
+
+    if (testProduct) {
+        console.log('🧪 Test product:', testProduct.name);
+        console.log('📊 Inventory:', testProduct.inventory);
+
+        // Test product display
+        if (typeof productDisplay !== 'undefined') {
+            const variants = productDisplay.getAvailableVariants?.(testProduct);
+            console.log('🎯 Available variants:', variants?.length || 'N/A');
+        }
+    } else {
+        console.log('📝 No admin products with inventory found to test');
+    }
+
+    return 'Inventory system test completed - check console logs';
+};
+
 // Add animation on scroll
 const observerOptions = {
     threshold: 0.1,
@@ -99,16 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Add hover effect to category cards
-document.querySelectorAll('.category-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-10px) scale(1.02)';
-    });
-
-    card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0) scale(1)';
-    });
-});
+// REMOVED: Product display and category effects - products are now managed through admin only
 
 // Add click effect to buttons
 document.querySelectorAll('.btn').forEach(btn => {

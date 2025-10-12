@@ -1,18 +1,23 @@
 // Admin Panel Functionality
 class AdminPanel {
     constructor() {
+        console.log('AdminPanel constructor called');
         this.orders = JSON.parse(localStorage.getItem('monalisa_orders')) || [];
         this.products = JSON.parse(localStorage.getItem('monalisa_products')) || {};
         this.isLoggedIn = sessionStorage.getItem('monalisa_admin_logged_in') === 'true';
         this.adminPassword = 'monalisa2024'; // Change this password
         this.currentProductId = null; // For editing existing products
+        console.log('isLoggedIn:', this.isLoggedIn);
         this.init();
     }
 
     init() {
+        console.log('init called, isLoggedIn:', this.isLoggedIn);
         if (this.isLoggedIn) {
+            console.log('Showing dashboard');
             this.showDashboard();
         } else {
+            console.log('Showing login');
             this.showLogin();
         }
         this.bindEvents();
@@ -46,36 +51,61 @@ class AdminPanel {
         });
 
         // Navigation tabs
+        console.log('Binding tab events');
         document.querySelectorAll('.nav-tab').forEach(tab => {
+            console.log('Found tab:', tab.dataset.tab);
             tab.addEventListener('click', (e) => {
+                console.log('Clicked tab:', e.target.dataset.tab);
                 this.switchTab(e.target.dataset.tab);
             });
         });
 
         // Product management events
-        document.getElementById('addProductBtn').addEventListener('click', () => {
-            this.showProductModal();
+        const addProductBtn = document.getElementById('addProductBtn');
+        console.log('Looking for addProductBtn:', addProductBtn);
+        if (addProductBtn) {
+            addProductBtn.addEventListener('click', () => {
+                this.showProductModal();
+            });
+        } else {
+            console.log('⚠️ addProductBtn not found - creating fallback access');
+            // Add fallback access via console
+            window.manualAddProduct = () => {
+                this.showProductModal();
+                console.log('Manual product modal opened');
+            };
+            console.log('Use manualAddProduct() in console to add products');
+        }
+
+        // Initialize simple variant system
+        this.productVariants = [];
+
+        // Modal events
+        ['closeProductModal', 'cancelProductBtn'].forEach(id => {
+            const elem = document.getElementById(id);
+            if (elem) {
+                elem.addEventListener('click', () => {
+                    this.hideProductModal();
+                });
+            }
         });
 
-        document.getElementById('closeProductModal').addEventListener('click', () => {
-            this.hideProductModal();
-        });
+        const productForm = document.getElementById('productForm');
+        if (productForm) {
+            productForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveProduct();
+            });
+        }
 
-        document.getElementById('cancelProductBtn').addEventListener('click', () => {
-            this.hideProductModal();
-        });
-
-        document.getElementById('productForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveProduct();
-        });
-
-        document.getElementById('addColorBtn').addEventListener('click', () => {
-            this.addColorInput();
-        });
-
-        document.getElementById('addSizeBtn').addEventListener('click', () => {
-            this.addSizeInput();
+        ['addColorBtn', 'addSizeBtn'].forEach(id => {
+            const elem = document.getElementById(id);
+            if (elem) {
+                elem.addEventListener('click', () => {
+                    if (id === 'addColorBtn') this.addColorInput();
+                    else this.addSizeInput();
+                });
+            }
         });
 
         // Auto-refresh orders every 30 seconds
@@ -110,10 +140,40 @@ class AdminPanel {
     }
 
     showDashboard() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('adminDashboard').style.display = 'block';
-        this.loadOrders();
-        this.updateStats();
+        console.log('showDashboard called');
+        const loginScreen = document.getElementById('loginScreen');
+        const dashboard = document.getElementById('adminDashboard');
+
+        if (loginScreen && dashboard) {
+            loginScreen.style.display = 'none';
+            dashboard.style.display = 'block';
+            console.log('Dashboard container shown');
+
+            // Make sure stats section is visible
+            const statsSection = document.querySelector('.stats-section');
+            if (statsSection) {
+                statsSection.style.display = 'block';
+                console.log('Stats section shown');
+            }
+
+            // And the orders section
+            const ordersSection = document.querySelector('.orders-section');
+            if (ordersSection) {
+                ordersSection.style.display = 'block';
+                console.log('Orders section shown');
+            }
+
+            // Load orders data and update stats
+            this.loadOrders();
+            this.updateStats();
+
+            // Ensure orders tab is default and tabs work
+            console.log('About to switch to orders tab');
+            this.switchTab('orders');
+            console.log('Orders tab should be active now');
+        } else {
+            console.error('Could not find loginScreen or adminDashboard elements');
+        }
     }
 
     loadOrders() {
@@ -301,31 +361,60 @@ class AdminPanel {
 
     // Tab switching functionality
     switchTab(tabName) {
+        console.log('switchTab called with:', tabName);
+
         // Update active tab button
         document.querySelectorAll('.nav-tab').forEach(tab => {
             tab.classList.remove('active');
         });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+            console.log('Tab button activated:', tabName);
+        }
 
-        // Hide all sections
+        // Always show stats section
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) {
+            statsSection.style.display = 'block';
+        }
+
+        // Hide all main sections using inline styles
         document.querySelectorAll('.orders-section, .products-section, .analytics-section').forEach(section => {
-            section.classList.add('hidden');
+            section.style.display = 'none';
+            console.log('Hidden section:', section.className);
         });
 
-        // Show selected section
+        // Show selected section using inline styles
         const sectionClass = tabName === 'orders' ? '.orders-section' :
                            tabName === 'products' ? '.products-section' : '.analytics-section';
-        document.querySelector(sectionClass).classList.remove('hidden');
+        const section = document.querySelector(sectionClass);
+        console.log('Looking for section:', sectionClass, 'Found:', !!section);
+
+        if (section) {
+            section.style.display = 'block';
+            console.log('✅ Section NOW VISIBLE:', sectionClass);
+        } else {
+            console.log('❌ Could not find section:', sectionClass);
+            // Let's list all sections we can find
+            console.log('Available sections:', document.querySelectorAll('section'));
+            document.querySelectorAll('section').forEach((s, i) => {
+                console.log('Section', i, ':', s.className, 'Display:', s.style.display);
+            });
+        }
 
         // Load data for the selected tab
         switch (tabName) {
             case 'orders':
+                console.log('🔄 Loading orders...');
                 this.loadOrders();
                 break;
             case 'products':
+                console.log('🔄 Loading products...');
                 this.loadProducts();
                 break;
             case 'analytics':
+                console.log('🔄 Loading analytics...');
                 this.loadAnalytics();
                 break;
         }
@@ -333,15 +422,27 @@ class AdminPanel {
 
     // Product management methods
     loadProducts() {
+        console.log('🔄 loadProducts called');
         this.products = JSON.parse(localStorage.getItem('monalisa_products')) || {};
+        console.log('Products loaded:', Object.keys(this.products));
         this.displayProducts();
     }
 
     displayProducts() {
+        console.log('🔄 displayProducts called');
         const productsGrid = document.getElementById('productsGrid');
+        console.log('productsGrid found:', !!productsGrid);
+
+        if (!productsGrid) {
+            console.log('❌ productsGrid element not found');
+            return;
+        }
+
         const allProducts = [];
+        let totalProducts = 0;
 
         Object.entries(this.products).forEach(([category, categoryProducts]) => {
+            totalProducts += categoryProducts.length;
             categoryProducts.forEach(product => {
                 product.categoryName = category;
                 allProducts.push(product);
@@ -367,17 +468,25 @@ class AdminPanel {
             });
         });
 
+        console.log('Total products found:', totalProducts);
+
         if (allProducts.length === 0) {
             productsGrid.innerHTML = `
                 <div class="no-products">
                     <i class="fas fa-box-open"></i>
                     <p>Aucun produit ajouté pour le moment</p>
+                    <p><strong>Debug Info:</strong> ${Object.keys(this.products).length} categories loaded</p>
+                    <button onclick="window.manualAddProduct()" class="add-product-btn" style="margin-top: 15px;">
+                        <i class="fas fa-plus"></i> Ajouter Produit (Console Fallback)
+                    </button>
                 </div>
             `;
+            console.log('✅ No products message displayed');
             return;
         }
 
         productsGrid.innerHTML = allProducts.map(product => this.createProductCard(product)).join('');
+        console.log('✅ Product cards displayed:', allProducts.length);
     }
 
     createProductCard(product) {
@@ -419,15 +528,110 @@ class AdminPanel {
         // Reset form
         form.reset();
 
+        // Reset variant system
+        this.productVariants = [];
+        this.updateVariantsDisplay();
+        this.updateTotalStock();
+
         if (productId) {
             modalTitle.textContent = 'Modifier le Produit';
-            // Load existing product data (would need category and id)
-            // For now, just show the modal
+            // TODO: Load existing product data and variants
         } else {
             modalTitle.textContent = 'Ajouter un Produit';
         }
 
         modal.classList.remove('hidden');
+    }
+
+    // Simple Variant Management Methods
+    addVariant() {
+        const colorSelect = document.getElementById('variantColor');
+        const sizeSelect = document.getElementById('variantSize');
+        const quantityInput = document.getElementById('variantQuantity');
+
+        const color = colorSelect.value.trim();
+        const size = sizeSelect.value.trim();
+        const quantity = parseInt(quantityInput.value) || 0;
+
+        if (!color || !size) {
+            alert('Veuillez sélectionner une couleur et une taille!');
+            return;
+        }
+
+        if (quantity <= 0) {
+            alert('Veuillez entrer une quantité supérieure à 0!');
+            return;
+        }
+
+        // Check if this variant already exists
+        const existingVariant = this.productVariants.find(v =>
+            v.color === color && v.size === size
+        );
+
+        if (existingVariant) {
+            existingVariant.quantity += quantity;
+            console.log('✅ Updated existing variant quantity:', color, size, 'to', existingVariant.quantity);
+        } else {
+            this.productVariants.push({
+                color: color,
+                size: size,
+                quantity: quantity
+            });
+            console.log('✅ Added new variant:', color, size, 'x', quantity);
+        }
+
+        // Reset form
+        colorSelect.value = '';
+        sizeSelect.value = '';
+        quantityInput.value = '';
+
+        this.updateVariantsDisplay();
+        this.updateTotalStock();
+    }
+
+    removeVariant(color, size) {
+        this.productVariants = this.productVariants.filter(v =>
+            !(v.color === color && v.size === size)
+        );
+        console.log('❌ Removed variant:', color, size);
+        this.updateVariantsDisplay();
+        this.updateTotalStock();
+    }
+
+    updateVariantsDisplay() {
+        const container = document.getElementById('variantsContainer');
+
+        if (this.productVariants.length === 0) {
+            container.innerHTML = '<span style="color: #999; font-style: italic;">Aucune variante ajoutée</span>';
+            return;
+        }
+
+        container.innerHTML = this.productVariants.map(variant => `
+            <div class="variant-tag" style="
+                background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+                color: white;
+                padding: 8px 12px;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;">
+                <span>${variant.color} ${variant.size} (${variant.quantity})</span>
+                <button type="button" onclick="admin.removeVariant('${variant.color}', '${variant.size}')"
+                    style="background: none; border: none; color: white; cursor: pointer; padding: 2px;">
+                    <i class="fas fa-times" style="font-size: 0.7rem;"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    updateTotalStock() {
+        const totalStock = this.productVariants.reduce((sum, variant) => sum + variant.quantity, 0);
+        const displayElement = document.getElementById('totalStockCount');
+        if (displayElement) {
+            displayElement.textContent = totalStock;
+        }
     }
 
     hideProductModal() {
@@ -436,58 +640,44 @@ class AdminPanel {
     }
 
     saveProduct() {
-        const formData = new FormData(document.getElementById('productForm'));
-
-        // Collect colors and sizes
-        const colors = [];
-        document.querySelectorAll('.color-input-group').forEach(group => {
-            const colorInput = group.querySelector('.color-input');
-            const quantityInput = group.querySelector('.size-quantity-input');
-            if (colorInput.value.trim()) {
-                colors.push({
-                    color: colorInput.value.trim(),
-                    quantity: parseInt(quantityInput.value) || 0
-                });
-            }
-        });
-
-        const sizes = [];
-        document.querySelectorAll('.size-input-group').forEach(group => {
-            const sizeInput = group.querySelector('.size-input');
-            const quantityInput = group.querySelector('.size-quantity-input');
-            if (sizeInput.value.trim()) {
-                sizes.push({
-                    size: sizeInput.value.trim(),
-                    quantity: parseInt(quantityInput.value) || 0
-                });
-            }
-        });
+        if (this.productVariants.length === 0) {
+            alert('Veuillez ajouter au moins une variante!');
+            return;
+        }
 
         const productData = {
             id: this.currentProductId || `product_${Date.now()}`,
-            name: document.getElementById('productName').value,
+            name: document.getElementById('productName').value.trim(),
             price: parseFloat(document.getElementById('productPrice').value),
             cost: parseFloat(document.getElementById('productCost').value),
             category: document.getElementById('productCategory').value,
             image: document.getElementById('productImage').value,
-            description: document.getElementById('productDescription').value,
-            colors: colors.map(c => c.color),
-            sizes: sizes.map(s => s.size),
+            description: document.getElementById('productDescription').value.trim(),
+            colors: [...new Set(this.productVariants.map(v => v.color))], // Extract unique colors
+            sizes: [...new Set(this.productVariants.map(v => v.size))], // Extract unique sizes
             inventory: {}
         };
 
-        // Initialize inventory for all color/size combinations
-        colors.forEach(colorData => {
-            sizes.forEach(sizeData => {
-                const inventoryKey = `${sizeData.size}_${colorData.color}`;
-                productData.inventory[inventoryKey] = {
-                    quantity: Math.max(colorData.quantity, sizeData.quantity), // For simplicity
-                    sold: 0,
-                    cost: productData.cost
-                };
-            });
+        // Validate required fields
+        if (!productData.name || !productData.price || !productData.cost || !productData.category) {
+            alert('Veuillez remplir tous les champs requis!');
+            return;
+        }
+
+        // Convert variants to inventory format
+        this.productVariants.forEach(variant => {
+            const inventoryKey = `${variant.size}_${variant.color}`;
+            productData.inventory[inventoryKey] = {
+                quantity: variant.quantity,
+                sold: 0,
+                cost: productData.cost
+            };
         });
 
+        const totalStock = this.productVariants.reduce((sum, v) => sum + v.quantity, 0);
+        console.log('💰 Saved product with', this.productVariants.length, 'variants =', totalStock, 'total stock');
+
+        // Save to products storage
         const category = productData.category;
         if (!this.products[category]) {
             this.products[category] = [];
@@ -507,13 +697,33 @@ class AdminPanel {
         localStorage.setItem('monalisa_products', JSON.stringify(this.products));
         this.hideProductModal();
         this.loadProducts();
+
+        // Trigger store refresh
+        console.log('💡 Product saved! Triggering store refresh...');
+        if (window.parent && window.parent.postMessage) {
+            window.parent.postMessage({ type: 'PRODUCTS_UPDATED' }, '*');
+        }
+
+        if (typeof productDisplay !== 'undefined') {
+            console.log('🔄 Updating local product display...');
+            setTimeout(() => {
+                productDisplay.displayProducts();
+            }, 500);
+        }
+
+        alert(`Produit "${productData.name}" sauvegardé avec succès!\nVariants: ${this.productVariants.length}\nStock total: ${totalStock} pièces`);
     }
 
     editProduct(category, productId) {
         const product = this.products[category]?.find(p => p.id === productId);
-        if (!product) return;
+        if (!product) {
+            alert('Produit introuvable!');
+            return;
+        }
 
-        // Populate form with product data
+        console.log('✏️ Editing product:', product.name);
+
+        // Populate form with existing product data
         document.getElementById('productName').value = product.name;
         document.getElementById('productCategory').value = product.category;
         document.getElementById('productPrice').value = product.price;
@@ -521,46 +731,21 @@ class AdminPanel {
         document.getElementById('productImage').value = product.image || '';
         document.getElementById('productDescription').value = product.description || '';
 
-        // Clear existing inputs
-        document.getElementById('colorInputs').innerHTML = '';
-        document.getElementById('sizeInputs').innerHTML = '';
-
-        // Get unique colors and sizes from inventory
-        const colors = new Set();
-        const colorQuantities = {};
-        const sizes = new Set();
-        const sizeQuantities = {};
-
-        Object.entries(product.inventory || {}).forEach(([key, data]) => {
-            const [size, color] = key.split('_');
-            colors.add(color);
-            sizes.add(size);
-
-            if (!colorQuantities[color]) colorQuantities[color] = 0;
-            if (!sizeQuantities[size]) sizeQuantities[size] = 0;
-
-            colorQuantities[color] = Math.max(colorQuantities[color] || 0, data.quantity);
-            sizeQuantities[size] = Math.max(sizeQuantities[size] || 0, data.quantity);
-        });
-
-        // Add color inputs
-        colors.forEach(color => {
-            this.addColorInput(color, colorQuantities[color]);
-        });
-
-        // Add size inputs
-        sizes.forEach(size => {
-            this.addSizeInput(size, sizeQuantities[size]);
-        });
-
-        if (colors.size === 0) {
-            this.addColorInput('', 0);
+        // Convert inventory back to variants format
+        this.productVariants = [];
+        if (product.inventory) {
+            Object.entries(product.inventory).forEach(([key, data]) => {
+                const [size, color] = key.split('_');
+                this.productVariants.push({
+                    color: color,
+                    size: size,
+                    quantity: data.quantity || 0
+                });
+            });
         }
 
-        if (sizes.size === 0) {
-            this.addSizeInput('', 0);
-        }
-
+        this.updateVariantsDisplay();
+        this.updateTotalStock();
         this.showProductModal(productId);
     }
 
@@ -571,6 +756,63 @@ class AdminPanel {
                 localStorage.setItem('monalisa_products', JSON.stringify(this.products));
                 this.loadProducts();
             }
+        }
+    }
+
+    // Bulk delete products with zero inventory
+    deleteProductsWithoutInventory() {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer tous les produits qui n\'ont pas de stock? Cette action est irréversible.')) {
+            return;
+        }
+
+        let deletedCount = 0;
+        const originalProducts = JSON.parse(JSON.stringify(this.products)); // Deep copy for logging
+
+        Object.keys(this.products).forEach(category => {
+            if (this.products[category]) {
+                const originalCount = this.products[category].length;
+                this.products[category] = this.products[category].filter(product => {
+                    // Calculate total available inventory
+                    let totalStock = 0;
+                    if (product.inventory) {
+                        Object.values(product.inventory).forEach(variant => {
+                            const quantity = variant.quantity || 0;
+                            const sold = variant.sold || 0;
+                            totalStock += Math.max(0, quantity - sold);
+                        });
+                    }
+
+                    // Keep product if it has inventory, otherwise delete it
+                    return totalStock > 0;
+                });
+
+                const deletedInCategory = originalCount - this.products[category].length;
+                if (deletedInCategory > 0) {
+                    console.log(`🗑️ Deleted ${deletedInCategory} products in ${category} category`);
+                }
+                deletedCount += deletedInCategory;
+            }
+        });
+
+        if (deletedCount > 0) {
+            localStorage.setItem('monalisa_products', JSON.stringify(this.products));
+            this.loadProducts();
+            alert(`✅ Supprimé ${deletedCount} produit(s) qui n'avaient pas de stock.`);
+            console.log(`✅ Bulk delete completed: ${deletedCount} product(s) removed`);
+
+            // Update store products display
+            if (window.parent && window.parent.postMessage) {
+                window.parent.postMessage({ type: 'PRODUCTS_UPDATED' }, '*');
+            }
+
+            if (typeof productDisplay !== 'undefined') {
+                setTimeout(() => {
+                    productDisplay.displayProducts();
+                }, 500);
+            }
+        } else {
+            alert('Aucun produit sans stock trouvé.');
+            console.log('ℹ️ No products found with zero inventory');
         }
     }
 
@@ -618,16 +860,22 @@ class AdminPanel {
 
     // Analytics methods
     loadAnalytics() {
+        console.log('🔄 loadAnalytics called');
         this.updateAnalytics();
     }
 
     updateAnalytics() {
+        console.log('🔄 updateAnalytics called');
         this.products = JSON.parse(localStorage.getItem('monalisa_products')) || {};
         this.orders = JSON.parse(localStorage.getItem('monalisa_orders')) || [];
+
+        console.log('Analytics data - Products:', Object.keys(this.products).length, 'Orders:', this.orders.length);
 
         this.updateSalesByProductChart();
         this.updateInventoryStatus();
         this.updateProductMargins();
+
+        console.log('✅ Analytics updated');
     }
 
     updateSalesByProductChart() {
@@ -735,8 +983,124 @@ class AdminPanel {
     }
 }
 
+// Test simple variant system
+window.testVariantSystem = () => {
+    console.log('🧪 Testing simple variant system...');
+
+    // Open admin modal
+    admin.showProductModal();
+
+    const colorSelect = document.getElementById('variantColor');
+    const sizeSelect = document.getElementById('variantSize');
+    const quantityInput = document.getElementById('variantQuantity');
+
+    if (colorSelect && sizeSelect && quantityInput) {
+        // Add some test variants
+        console.log('Adding test variants...');
+
+        // Noir M - 10 pieces
+        colorSelect.value = 'Noir';
+        sizeSelect.value = 'M';
+        quantityInput.value = '10';
+        admin.addVariant();
+
+        // Rouge S - 5 pieces
+        colorSelect.value = 'Rouge';
+        sizeSelect.value = 'S';
+        quantityInput.value = '5';
+        admin.addVariant();
+
+        // Bleu L - 8 pieces
+        colorSelect.value = 'Bleu';
+        sizeSelect.value = 'L';
+        quantityInput.value = '8';
+        admin.addVariant();
+
+        console.log('✅ Added 3 test variants:');
+        console.log('• Noir M (10 pieces)');
+        console.log('• Rouge S (5 pieces)');
+        console.log('• Bleu L (8 pieces)');
+        console.log('Total stock should show 23 pieces!');
+    } else {
+        console.log('❌ Could not find variant inputs');
+    }
+
+    return 'Variant system test completed - try adding variants manually!';
+};
+
+// Quick test product creation
+window.testCreateProduct = () => {
+    console.log('📝 Creating test product...');
+
+    // Simulate form inputs
+    document.getElementById('productName').value = 'T-Shirt Test';
+    document.getElementById('productPrice').value = 150;
+    document.getElementById('productCost').value = 100;
+    document.getElementById('productCategory').value = 'shirts';
+    document.getElementById('productDescription').value = 'Test product for inventory system';
+
+    // Add a test variant
+    const colorSelect = document.getElementById('variantColor');
+    const sizeSelect = document.getElementById('variantSize');
+    const quantityInput = document.getElementById('variantQuantity');
+
+    if (colorSelect && sizeSelect && quantityInput) {
+        colorSelect.value = 'Noir';
+        sizeSelect.value = 'M';
+        quantityInput.value = '25';
+        admin.addVariant();
+
+        console.log('✅ Added test variant: Noir M (25 pieces)');
+        console.log('Click "Enregistrer" to save the test product!');
+    }
+
+    return 'Test product ready - add variants and click save!';
+};
+
+// Manual test functions for debug
+window.testShowProducts = () => {
+    console.log('Manual test - showing products section');
+    const productsSection = document.querySelector('.products-section');
+    if (productsSection) {
+        productsSection.style.display = 'block';
+        console.log('✅ Products section made visible');
+        admin.loadProducts();
+        return 'Products section shown';
+    } else {
+        console.log('❌ Products section not found');
+        return 'Products section not found';
+    }
+};
+
+window.testShowAnalytics = () => {
+    console.log('Manual test - showing analytics section');
+    const analyticsSection = document.querySelector('.analytics-section');
+    if (analyticsSection) {
+        analyticsSection.style.display = 'block';
+        console.log('✅ Analytics section made visible');
+        admin.loadAnalytics();
+        return 'Analytics section shown';
+    } else {
+        console.log('❌ Analytics section not found');
+        return 'Analytics section not found';
+    }
+};
+
+window.testRefreshStoreProducts = () => {
+    console.log('🔄 Manual test - refreshing store products display');
+    if (typeof productDisplay !== 'undefined' && productDisplay.displayProducts) {
+        productDisplay.displayProducts();
+        console.log('✅ Store products refreshed');
+        return 'Store products refreshed - check console for product counts';
+    } else {
+        console.log('❌ productDisplay not found');
+        return 'productDisplay not found - make sure you\'re on the main store page, not admin';
+    }
+};
+
 // Initialize admin panel
 const admin = new AdminPanel();
 
 // Export for use in other files
 window.AdminPanel = AdminPanel;
+window.ProductManager = ProductManager || { getProductById: function(id) { return null; } };

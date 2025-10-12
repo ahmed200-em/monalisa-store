@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -c \"C:\\Users\\aelma\\Desktop\\monalisa store\\admin.js\")",
+      "Bash(test -f \"C:\\Users\\aelma\\Desktop\\monalisa store\\admin-styles.css\")",
+      "Bash(cat \"C:\\Users\\aelma\\Desktop\\monalisa store\\cart.js\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

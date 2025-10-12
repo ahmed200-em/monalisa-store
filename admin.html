@@ -30,7 +30,7 @@
         </div>
     </div>
     <!-- Admin Dashboard -->
-    <div id="adminDashboard" class="admin-dashboard hidden">
+    <div id="adminDashboard" class="admin-dashboard">
         <!-- Header -->
         <header class="admin-header">
             <div class="header-content">
@@ -134,13 +134,18 @@
         </section>
 
         <!-- Products Management Section -->
-        <section class="products-section hidden">
+        <section class="products-section" style="display: none;">
             <div class="container">
                 <div class="section-header">
                     <h2>Gestion des Produits</h2>
-                    <button class="add-product-btn" id="addProductBtn">
-                        <i class="fas fa-plus"></i> Ajouter Produit
-                    </button>
+                    <div class="header-actions">
+                        <button class="clear-stock-btn" onclick="admin.deleteProductsWithoutInventory()">
+                            <i class="fas fa-trash"></i> Supprimer sans stock
+                        </button>
+                        <button class="add-product-btn" id="addProductBtn">
+                            <i class="fas fa-plus"></i> Ajouter Produit
+                        </button>
+                    </div>
                 </div>
 
                 <div class="products-grid" id="productsGrid">
@@ -150,7 +155,7 @@
         </section>
 
         <!-- Analytics Section -->
-        <section class="analytics-section hidden">
+        <section class="analytics-section" style="display: none;">
             <div class="container">
                 <div class="section-header">
                     <h2>Analytiques et Statistiques</h2>
@@ -190,8 +195,9 @@
             <div class="modal">
                 <div class="modal-header">
                     <h3 id="modalTitle">Ajouter un Produit</h3>
-                    <button class="close-modal" id="closeProductModal">
-                        <i class="fas fa-times"></i>
+                    <button class="close-modal" id="closeProductModal" title="Fermer" aria-label="Fermer">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        <span class="sr-only">Fermer</span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -230,35 +236,81 @@
                             <label for="productImage">URL de l'Image</label>
                             <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
                         </div>
-                        <div class="form-group">
-                            <label>Couleurs *</label>
-                            <div class="color-inputs" id="colorInputs">
-                                <div class="color-input-group">
-                                    <input type="text" placeholder="Couleur" class="color-input">
-                                    <input type="number" placeholder="Quantité" min="0" class="size-quantity-input">
-                                    <button type="button" class="remove-color-btn">
-                                        <i class="fas fa-minus"></i>
+                        <!-- Simple Variant Management -->
+                        <div class="variants-section">
+                            <h4 style="margin-bottom: 15px; color: #333;">Ajouter les Variantes du Produit</h4>
+
+                            <!-- Add Variant Form -->
+                            <div class="variant-form" style="
+                                background: #f8f9fa;
+                                padding: 20px;
+                                border-radius: 10px;
+                                margin-bottom: 20px;
+                                border: 1px solid #e9ecef;">
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #333; font-size: 0.9rem;">Couleur:</label>
+                                        <select id="variantColor" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
+                                            <option value="">Choisir couleur</option>
+                                            <option value="Noir">Noir</option>
+                                            <option value="Blanc">Blanc</option>
+                                            <option value="Rouge">Rouge</option>
+                                            <option value="Bleu">Bleu</option>
+                                            <option value="Vert">Vert</option>
+                                            <option value="Jaune">Jaune</option>
+                                            <option value="Rose">Rose</option>
+                                            <option value="Violet">Violet</option>
+                                            <option value="Gris">Gris</option>
+                                            <option value="Marron">Marron</option>
+                                            <option value="Orange">Orange</option>
+                                            <option value="Beige">Beige</option>
+                                            <option value="Bordeaux">Bordeaux</option>
+                                            <option value="Turquoise">Turquoise</option>
+                                            <option value="Or">Or</option>
+                                            <option value="Argent">Argent</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #333; font-size: 0.9rem;">Taille:</label>
+                                        <select id="variantSize" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
+                                            <option value="">Choisir taille</option>
+                                            <option value="XS">XS</option>
+                                            <option value="S">S</option>
+                                            <option value="M">M</option>
+                                            <option value="L">L</option>
+                                            <option value="XL">XL</option>
+                                            <option value="XXL">XXL</option>
+                                            <option value="36">36</option>
+                                            <option value="38">38</option>
+                                            <option value="40">40</option>
+                                            <option value="42">42</option>
+                                            <option value="44">44</option>
+                                            <option value="46">46</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label style="font-weight: 600; color: #333; font-size: 0.9rem;">Quantité:</label>
+                                        <input type="number" id="variantQuantity" min="0" placeholder="0" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; text-align: center;">
+                                    </div>
+
+                                    <button type="button" onclick="admin.addVariant()" class="add-btn" style="height: 44px; font-weight: 600; background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
+                                        <i class="fas fa-plus"></i> Ajouter
                                     </button>
                                 </div>
                             </div>
-                            <button type="button" id="addColorBtn" class="add-color-btn">
-                                <i class="fas fa-plus"></i> Ajouter Couleur
-                            </button>
-                        </div>
-                        <div class="form-group">
-                            <label>Tailles *</label>
-                            <div class="size-inputs" id="sizeInputs">
-                                <div class="size-input-group">
-                                    <input type="text" placeholder="Taille" class="size-input">
-                                    <input type="number" placeholder="Quantité" min="0" class="size-quantity-input">
-                                    <button type="button" class="remove-size-btn">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
+
+                            <!-- Variants List -->
+                            <div class="variants-list" id="variantsList" style="margin-top: 20px;">
+                                <h5 style="margin-bottom: 10px; color: #666; font-size: 0.9rem;">Variantes ajoutées:</h5>
+                                <div id="variantsContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    <span style="color: #999; font-style: italic;">Aucune variante ajoutée</span>
+                                </div>
+                                <div id="totalStockDisplay" style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 6px; color: #2e7d32; font-weight: 600;">
+                                    Stock total: <span id="totalStockCount">0</span> pièces
                                 </div>
                             </div>
-                            <button type="button" id="addSizeBtn" class="add-size-btn">
-                                <i class="fas fa-plus"></i> Ajouter Taille
-                            </button>
                         </div>
                         <div class="form-group">
                             <label for="productDescription">Description</label>

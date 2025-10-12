@@ -1,4 +1,5 @@
 // Product data for Monalisa Store
+// This data is used by the frontend and should be migrated to admin-managed products
 const products = {
     pants: [
         {
