@@ -269,6 +269,121 @@
                 </div>
             </div>
         </section>
+
+        <!--
+            ========================================================================
+            PRODUCTS SECTION - Product management grid
+            ========================================================================
+            Purpose: Display and manage products (add, edit, delete, stock).
+
+            Key IDs:
+              - #profitReportBtn       : Button to open profit report modal
+              - #addProductBtn         : Button to open product add form
+              - #productFormContainer  : Container for add/edit product form
+              - #productForm           : Form for adding/editing products
+              - #adminProductsGrid     : Dynamic grid where product cards are rendered
+            ========================================================================
+        -->
+        <section class="products-section">
+            <div class="container">
+                <div class="header-content">
+                    <h2>Gestion des Produits</h2>
+                    <div class="header-right">
+                        <button class="profit-report-btn" id="profitReportBtn" title="Voir le rapport de profit">
+                            <i class="fas fa-chart-pie"></i> Rapport de Profit
+                        </button>
+                        <button class="add-product-btn" id="addProductBtn">
+                            <i class="fas fa-plus"></i> Ajouter un produit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product Form Container (hidden by default, shown when adding/editing) -->
+                <div class="product-form-container hidden" id="productFormContainer">
+                    <h3 id="productFormTitle">Ajouter un produit</h3>
+                    <form id="productForm">
+                        <input type="hidden" id="editProductId" value="">
+                        
+                        <div class="form-group">
+                            <label for="productName">Nom du produit *</label>
+                            <input type="text" id="productName" placeholder="Nom du produit" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productPrice">Prix de vente (MAD) *</label>
+                                <input type="number" id="productPrice" min="1" placeholder="Prix de vente" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productCostPrice">Prix d'achat (MAD) *</label>
+                                <input type="number" id="productCostPrice" min="0" step="0.01" placeholder="Prix que vous avez payé" required>
+                                <small class="form-help-text">Ce prix sera utilisé pour calculer vos profits</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productCategory">Catégorie *</label>
+                            <select id="productCategory" required>
+                                <option value="">Sélectionner une catégorie</option>
+                                <option value="pants">Pantalons</option>
+                                <option value="blouses">Chemisiers</option>
+                                <option value="shirts">Chemises</option>
+                                <option value="accessories">Accessoires</option>
+                                <option value="handbags">Sacs à main</option>
+                                <option value="footwear">Chaussures</option>
+                                <option value="perfumes">Parfums</option>
+                                <option value="pajamas">Pyjamas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productDescription">Description</label>
+                            <textarea id="productDescription" rows="3" placeholder="Description du produit"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productSizes">Tailles (séparées par des virgules) *</label>
+                            <input type="text" id="productSizes" placeholder="Ex: S, M, L, XL" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="productColors">Couleurs (séparées par des virgules) *</label>
+                            <input type="text" id="productColors" placeholder="Ex: Noir, Blanc, Rouge" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Images du produit (URLs)</label>
+                            <div id="imageUrlsContainer">
+                                <div class="image-url-row">
+                                    <input type="text" class="product-image-url" placeholder="Image principale (URL)">
+                                    <button type="button" class="add-image-btn" onclick="admin.addImageUrlField()">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="cancelProductForm">
+                                <i class="fas fa-times"></i> Annuler
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Products Grid: Dynamic content rendered here by admin.js -->
+                <div class="admin-products-grid" id="adminProductsGrid">
+                    <!-- Default placeholder -->
+                    <div class="no-products">
+                        <i class="fas fa-box-open"></i>
+                        <p>Aucun produit pour le moment. Cliquez sur "Ajouter un produit" pour commencer.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!--

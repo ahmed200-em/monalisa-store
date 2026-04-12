@@ -1832,8 +1832,6 @@ body {
 /* Responsive for profit report */
 @media (max-width: 768px) {
     .profit-report-content {
-        overflow-y: auto;
-        scrollbar-gutter: stable;
         width: 95%;
         max-height: 95vh;
     }
