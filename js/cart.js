@@ -1027,14 +1027,13 @@ class ProductDisplay {
 
 // Simple function to open product modal (for hardcoded products)
 function openProductModal(productId) {
+    console.log('openProductModal called with:', productId);
     if (window.productDisplay && window.productDisplay.openModal) {
         window.productDisplay.openModal(productId);
     } else {
-        // Fallback: find product and open modal manually
-        const product = findProductById(productId);
-        if (product) {
-            showProductModal(product);
-        }
+        console.error('productDisplay not available!');
+        console.log('window.productDisplay:', window.productDisplay);
+        alert('Modal not ready yet. Please try again.');
     }
 }
 
