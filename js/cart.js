@@ -102,33 +102,14 @@ class ShoppingCart {
             return;
         }
 
-<<<<<<< HEAD:cart.js
-        // Check inventory availability
-        const inventoryKey = `${size}_${color}`;
-        const availableStock = product.inventory?.[inventoryKey]?.quantity || 999;
-
-        // Count how much is already in cart
-        const existingCartQuantity = this.items.reduce((total, item) => {
-            if (item.productId === productId && item.size === size && item.color === color) {
-                return total + item.quantity;
-            }
-            return total;
-        }, 0);
-
-        const totalRequestedQuantity = existingCartQuantity + quantity;
-
-        if (totalRequestedQuantity > availableStock) {
-            alert(`Désolé, seulement ${availableStock} pièces disponibles en stock (${size}, ${color}).`);
-=======
         // Check available stock before adding to cart
         const availableStock = ProductManager.getStock(productId, size, color);
-        const currentInCart = this.items.find(item => 
+        const currentInCart = this.items.find(item =>
             item.productId === productId && item.size === size && item.color === color
         )?.quantity || 0;
-        
+
         if (availableStock < (currentInCart + quantity)) {
             alert(`Sorry, only ${availableStock - currentInCart} more item(s) available in ${size}/${color}`);
->>>>>>> 44c3494 (so edit about a store):js/cart.js
             return;
         }
 
@@ -631,6 +612,7 @@ class ProductDisplay {
     constructor() {
         this.availableVariants = [];
         this.currentProductId = null;
+        this.currentFilter = 'all'; // Default to show all products
         this.init();
     }
 
@@ -667,83 +649,8 @@ class ProductDisplay {
 
     displayProducts() {
         const grid = document.getElementById('productsGrid');
-<<<<<<< HEAD:cart.js
-        if (!grid) {
-            console.error('productsGrid element not found');
-            return;
-        }
-
-        const products = this.getAllProducts();
-
-        if (products.length === 0) {
-            grid.innerHTML = `
-                <div style="text-align: center; padding: 50px; color: #666;">
-                    <i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc; margin-bottom: 20px;"></i>
-                    <h3>Produits Non Disponibles</h3>
-                    <p>Les produits sont gérés manuellement par l'administration.</p>
-                    <p>Contactez-nous directement pour vos commandes.</p>
-                </div>
-            `;
-            return;
-        }
-
-        grid.innerHTML = products.map(product => {
-            const totalStock = this.calculateTotalStock(product);
-            const availableVariants = this.getAvailableVariants(product);
-            const variantText = this.getVariantSummary(availableVariants);
-
-            return `
-                <div class="product-card" onclick="productDisplay.openModal('${product.id}')">
-                    <div class="product-image">
-                        <img src="${product.image || 'image/placeholder.jpg'}" alt="${product.name}" loading="lazy">
-                        ${totalStock <= 3 ?
-                            '<span class="stock-badge low-stock">Stock Faible</span>' :
-                            '<span class="stock-badge in-stock">En Stock</span>'
-                        }
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-category">${product.category || 'Divers'}</p>
-                        <p class="product-price">${product.price} MAD</p>
-                        <div class="variant-info">
-                            <small style="color: #666;">${variantText}</small>
-                            <small style="color: #888;">Stock total: ${totalStock} pièce(s)</small>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="event.stopPropagation(); productDisplay.openModal('${product.id}')">
-                            Voir Détails
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        console.log(`🎯 Displayed ${products.length} products in the grid`);
-    }
-
-    calculateTotalStock(product) {
-        if (!product.inventory) return 0;
-
-        return Object.values(product.inventory).reduce((total, variant) => {
-            return total + (variant.quantity || 0);
-        }, 0);
-    }
-
-    getVariantSummary(variants) {
-        const colors = [...new Set(variants.map(v => v.color))];
-        const sizes = [...new Set(variants.map(v => v.size))];
-
-        let text = '';
-        if (colors.length > 0) {
-            text += `${colors.length} couleur${colors.length > 1 ? 's' : ''} • `;
-        }
-        if (sizes.length > 0) {
-            text += `${sizes.length} taille${sizes.length > 1 ? 's' : ''}`;
-        }
-
-        return text || 'Variantes disponibles';
-=======
         const allProducts = ProductManager.getProductsByCategory(this.currentFilter);
-        
+
         // Debug: Log products
         console.log('=== Product Display Debug ===');
         console.log('All products in localStorage:', ProductManager.getAllProducts().length);
@@ -767,7 +674,7 @@ class ProductDisplay {
         grid.innerHTML = allProducts.map(product => {
             const images = product.images || (product.image ? [product.image] : []);
             const mainImage = images.length > 0 ? images[0] : 'https://via.placeholder.com/300x400/E91E63/FFFFFF?text=No+Image';
-            
+
             return `
             <div class="product-card" data-product-id="${product.id}">
                 <div class="product-image">
@@ -806,22 +713,22 @@ class ProductDisplay {
     changeImage(productId, direction) {
         const card = document.querySelector(`[data-product-id="${productId}"]`);
         if (!card) return;
-        
+
         const img = card.querySelector('img');
         if (!img) return;
-        
+
         const images = JSON.parse(img.dataset.productImages || '[]');
         if (images.length <= 1) return;
-        
+
         let currentIndex = images.indexOf(img.src);
         if (currentIndex === -1) currentIndex = 0;
-        
+
         let newIndex = currentIndex + direction;
         if (newIndex < 0) newIndex = images.length - 1;
         if (newIndex >= images.length) newIndex = 0;
-        
+
         img.src = images[newIndex];
-        
+
         // Update dots
         const dots = card.querySelectorAll('.image-dots .dot');
         dots.forEach((dot, idx) => {
@@ -832,21 +739,20 @@ class ProductDisplay {
     setImage(productId, index) {
         const card = document.querySelector(`[data-product-id="${productId}"]`);
         if (!card) return;
-        
+
         const img = card.querySelector('img');
         if (!img) return;
-        
+
         const images = JSON.parse(img.dataset.productImages || '[]');
         if (index >= 0 && index < images.length) {
             img.src = images[index];
-            
+
             // Update dots
             const dots = card.querySelectorAll('.image-dots .dot');
             dots.forEach((dot, idx) => {
                 dot.classList.toggle('active', idx === index);
             });
         }
->>>>>>> 44c3494 (so edit about a store):js/cart.js
     }
 
     openModal(productId) {
@@ -875,13 +781,7 @@ class ProductDisplay {
         this.populateColorOptions();
 
         // Reset quantity
-<<<<<<< HEAD:cart.js
-        document.getElementById('quantityInput').value = 1;
-        this.updateQuantityLimits();
-        this.showAvailabilityInfo();
-=======
         document.getElementById('quantitySelect').value = 1;
->>>>>>> 44c3494 (so edit about a store):js/cart.js
 
         // Add event listeners for size/color change
         const sizeSelect = document.getElementById('sizeSelect');
@@ -1084,8 +984,6 @@ class ProductDisplay {
         cart.addItem(this.currentProductId, size, color, quantity);
         this.closeModal();
     }
-<<<<<<< HEAD:cart.js
-=======
 
     findProduct(productId) {
         return ProductManager.getProductById(productId);
@@ -1139,7 +1037,6 @@ function showProductModal(product) {
     // Show modal
     document.getElementById('productModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
->>>>>>> 44c3494 (so edit about a store):js/cart.js
 }
 
 // Initialize product display after DOM is loaded

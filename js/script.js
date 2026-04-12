@@ -221,11 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-<<<<<<< HEAD:script.js
-// REMOVED: Product display and category effects - products are now managed through admin only
-
-=======
->>>>>>> 44c3494 (so edit about a store):js/script.js
 // Add click effect to buttons
 document.querySelectorAll('.btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
