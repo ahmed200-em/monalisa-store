@@ -20,6 +20,12 @@ monalisa store/
 ├── 📁 ASSETS
 │   └── image/
 │       └── logo.jpg            # Store logo
+|       └── Screenshot 2026-04-12 215642.jpg            # Store screenshots1
+|       └── Screenshot 2026-04-12 215811.jpg            # Store screenshots2
+|       └── Screenshot 2026-04-12 215904.jpg            # Store screenshots3
+|       └── Screenshot 2026-04-12 220003.jpg            # Store screenshots4
+|       └── Screenshot 2026-04-12 220031.jpg            # Store screenshots5
+|       └── Screenshot 2026-04-12 220046.jpg            # Store screenshots6
 │
 └── 📄 CONFIG
     ├── store-details.txt       # Store information
