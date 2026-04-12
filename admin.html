@@ -1,16 +1,50 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+    <!--
+        ========================================================================
+        ADMIN PANEL - DOCUMENT HEAD
+        ========================================================================
+        Purpose: Configuration and resource loading for the admin dashboard.
+
+        This page provides a password-protected interface for managing:
+          - Customer orders (view, filter, clear)
+          - Product catalog (add, edit, delete)
+          - Business statistics (revenue, profit, delivery fees)
+
+        Resources loaded:
+          - css/admin-styles.css  : Dedicated admin panel styles
+          - Font Awesome 6         : Icon library for UI elements
+          - Google Fonts (Poppins) : Typography family (weights 300-700)
+        ========================================================================
+    -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Monalisa Store</title>
-    <link rel="stylesheet" href="admin-styles.css">
+    <link rel="stylesheet" href="css/admin-styles.css">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Login Screen -->
+    <!--
+        ========================================================================
+        LOGIN SCREEN
+        ========================================================================
+        Purpose: Password-protected gate that blocks access to the admin dashboard.
+
+        Behavior:
+          - Visible by default (no 'hidden' class).
+          - On successful password entry, JS adds 'hidden' to #loginScreen and
+            removes 'hidden' from #adminDashboard.
+          - Password validation is handled in js/admin.js.
+
+        Key IDs:
+          - #loginScreen     : Outer container; visibility toggled by JS.
+          - #loginForm       : Form element; submit event handled in admin.js.
+          - #adminPassword   : Password input; value read for authentication.
+        ========================================================================
+    -->
     <div id="loginScreen" class="login-screen">
         <div class="login-container">
             <div class="login-header">
@@ -20,6 +54,7 @@
             </div>
             <form id="loginForm" class="login-form">
                 <div class="form-group">
+                    <!-- Password input: JS reads this value to verify against stored credential -->
                     <input type="password" id="adminPassword" placeholder="Mot de passe" required>
                     <i class="fas fa-lock"></i>
                 </div>
@@ -30,7 +65,7 @@
         </div>
     </div>
     <!-- Admin Dashboard -->
-    <div id="adminDashboard" class="admin-dashboard">
+    <div id="adminDashboard" class="admin-dashboard hidden">
         <!-- Header -->
         <header class="admin-header">
             <div class="header-content">
@@ -39,9 +74,11 @@
                     <h1>Monalisa Admin</h1>
                 </div>
                 <div class="header-right">
+                    <!-- Refresh button: Reloads orders/products from localStorage -->
                     <button class="refresh-btn" id="refreshOrders">
                         <i class="fas fa-sync-alt"></i> Actualiser
                     </button>
+                    <!-- Logout button: Resets UI back to login screen -->
                     <button class="logout-btn" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Déconnexion
                     </button>
@@ -62,10 +99,57 @@
             </button>
         </nav>
 
-        <!-- Stats Section -->
+        <!--
+            ================================================================
+            NAVIGATION TABS: Switch between Orders and Products views
+            ================================================================
+            Behavior:
+              - data-tab attribute used by JS to show/hide corresponding sections.
+              - 'active' class indicates the currently selected tab.
+              - Click handlers in admin.js toggle section visibility based on data-tab.
+
+            Key IDs / Attributes:
+              - data-tab="orders"   : Shows the orders section (default view).
+              - data-tab="products"  : Shows the products management section.
+            ================================================================
+        -->
+        <nav class="admin-nav">
+            <div class="container">
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-tab="orders">
+                        <i class="fas fa-shopping-cart"></i> Commandes
+                    </button>
+                    <button class="nav-tab" data-tab="products">
+                        <i class="fas fa-box"></i> Produits
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!--
+            ========================================================================
+            STATISTICS SECTION
+            ========================================================================
+            Purpose: Display key business metrics at a glance in a responsive grid.
+
+            Data: All values are dynamically updated by admin.js from localStorage data.
+
+            Layout: 6 stat cards, each with an icon, numeric value (h3), and label.
+
+            Key IDs (all updated by JS):
+              - #totalOrders     : Total number of orders received.
+              - #todayOrders     : Orders placed today.
+              - #totalRevenue    : Total revenue (sum of all order amounts).
+              - #totalProfit     : Total profit (revenue minus product costs).
+              - #todayProfit     : Profit earned today.
+              - #deliveryRevenue : Total delivery fees collected.
+            ========================================================================
+        -->
         <section class="stats-section">
             <div class="container">
                 <div class="stats-grid">
+
+                    <!-- Stat Card 1: Total Orders -->
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-shopping-cart"></i>
@@ -75,6 +159,8 @@
                             <p>Commandes totales</p>
                         </div>
                     </div>
+
+                    <!-- Stat Card 2: Today's Orders -->
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-clock"></i>
@@ -84,6 +170,8 @@
                             <p>Aujourd'hui</p>
                         </div>
                     </div>
+
+                    <!-- Stat Card 3: Total Revenue -->
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-money-bill"></i>
@@ -93,6 +181,30 @@
                             <p>Chiffre d'affaires</p>
                         </div>
                     </div>
+
+                    <!-- Stat Card 4: Total Profit -->
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalProfit">0 MAD</h3>
+                            <p>Profit total</p>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 5: Today's Profit -->
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="todayProfit">0 MAD</h3>
+                            <p>Profit aujourd'hui</p>
+                        </div>
+                    </div>
+
+                    <!-- Stat Card 6: Delivery Fees -->
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-truck"></i>
@@ -102,29 +214,54 @@
                             <p>Frais de livraison</p>
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>
 
-        <!-- Orders Section -->
+        <!--
+            ========================================================================
+            ORDERS SECTION
+            ========================================================================
+            Purpose: Display and manage customer orders.
+
+            Behavior:
+              - Orders are loaded from localStorage and rendered dynamically by JS.
+              - Each order card is generated from a JS template (not hardcoded in HTML).
+              - Status filter dropdown allows filtering by order status.
+              - "Clear all" button deletes all orders (with confirmation prompt).
+
+            Key IDs:
+              - #statusFilter    : Select dropdown for filtering orders by status
+                                   (all / new / processing / completed).
+              - #clearAllOrders  : Button to delete all orders (triggers confirmation in JS).
+              - #ordersContainer : Dynamic content area where order cards are rendered.
+                                   - Default state: Shows "no orders" placeholder message.
+                                   - Populated by: admin.js renders order cards here.
+            ========================================================================
+        -->
         <section class="orders-section">
             <div class="container">
                 <div class="section-header">
-                    <h2>Commandes récentes</h2>
+                    <h2>Commandes recentes</h2>
                     <div class="filters">
-                        <select id="statusFilter" aria-label="Filtrer par statut" title="Filtrer par statut">
-                            <option value="all">Toutes les commandes</option>
-                            <option value="new">Nouvelles</option>
-                            <option value="processing">En cours</option>
-                            <option value="completed">Terminées</option>
+                        <!-- Status filter dropdown: JS reads selected value to filter displayed orders -->
+                        <select id="statusFilter" aria-label="Filter by status" title="Filter by status">
+                            <option value="all">All orders</option>
+                            <option value="new">New</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
                         </select>
+                        <!-- Clear all orders button: triggers confirmation dialog in JS -->
                         <button class="clear-all-btn" id="clearAllOrders">
                             <i class="fas fa-trash"></i> Tout effacer
                         </button>
                     </div>
                 </div>
 
+                <!-- DYNAMIC CONTENT AREA: Order cards rendered here by admin.js -->
                 <div class="orders-container" id="ordersContainer">
+                    <!-- Default placeholder: replaced when orders are loaded from localStorage -->
                     <div class="no-orders">
                         <i class="fas fa-inbox"></i>
                         <p>Aucune commande pour le moment</p>
@@ -132,200 +269,25 @@
                 </div>
             </div>
         </section>
-
-        <!-- Products Management Section -->
-        <section class="products-section" style="display: none;">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Gestion des Produits</h2>
-                    <div class="header-actions">
-                        <button class="clear-stock-btn" onclick="admin.deleteProductsWithoutInventory()">
-                            <i class="fas fa-trash"></i> Supprimer sans stock
-                        </button>
-                        <button class="add-product-btn" id="addProductBtn">
-                            <i class="fas fa-plus"></i> Ajouter Produit
-                        </button>
-                    </div>
-                </div>
-
-                <div class="products-grid" id="productsGrid">
-                    <!-- Products will be dynamically loaded here -->
-                </div>
-            </div>
-        </section>
-
-        <!-- Analytics Section -->
-        <section class="analytics-section" style="display: none;">
-            <div class="container">
-                <div class="section-header">
-                    <h2>Analytiques et Statistiques</h2>
-                </div>
-
-                <div class="analytics-grid">
-                    <div class="analytics-card">
-                        <h3><i class="fas fa-chart-bar"></i> Ventes par Produit</h3>
-                        <div class="analytics-content" id="salesByProductChart">
-                            <!-- Chart will be rendered here -->
-                        </div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3><i class="fas fa-trending-up"></i> Tendance des Profits</h3>
-                        <div class="analytics-content" id="profitTrendChart">
-                            <!-- Chart will be rendered here -->
-                        </div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3><i class="fas fa-warehouse"></i> État des Stocks</h3>
-                        <div class="inventory-list" id="inventoryStatus">
-                            <!-- Inventory status will be shown here -->
-                        </div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3><i class="fas fa-dollar-sign"></i> Marges par Produit</h3>
-                        <div class="margins-content" id="productMargins">
-                            <!-- Product margins will be shown here -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Add Product Modal -->
-        <div class="modal-overlay hidden" id="productModal">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3 id="modalTitle">Ajouter un Produit</h3>
-                    <button class="close-modal" id="closeProductModal" title="Fermer" aria-label="Fermer">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="sr-only">Fermer</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="productForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="productName">Nom du Produit *</label>
-                                <input type="text" id="productName" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="productCategory">Catégorie *</label>
-                                <select id="productCategory" required>
-                                    <option value="">Sélectionner une catégorie</option>
-                                    <option value="pants">Pantalons</option>
-                                    <option value="blouses">Blouses</option>
-                                    <option value="shirts">Chemises</option>
-                                    <option value="accessories">Accessoires</option>
-                                    <option value="handbags">Sacs à main</option>
-                                    <option value="footwear">Chaussures</option>
-                                    <option value="perfumes">Parfums</option>
-                                    <option value="pajamas">Pyjamas</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="productPrice">Prix de Vente (MAD) *</label>
-                                <input type="number" id="productPrice" min="0" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="productCost">Prix d'Achat (MAD) *</label>
-                                <input type="number" id="productCost" min="0" step="0.01" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="productImage">URL de l'Image</label>
-                            <input type="url" id="productImage" placeholder="https://example.com/image.jpg">
-                        </div>
-                        <!-- Simple Variant Management -->
-                        <div class="variants-section">
-                            <h4 style="margin-bottom: 15px; color: #333;">Ajouter les Variantes du Produit</h4>
-
-                            <!-- Add Variant Form -->
-                            <div class="variant-form" style="
-                                background: #f8f9fa;
-                                padding: 20px;
-                                border-radius: 10px;
-                                margin-bottom: 20px;
-                                border: 1px solid #e9ecef;">
-                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 15px; align-items: end;">
-                                    <div class="form-group">
-                                        <label style="font-weight: 600; color: #333; font-size: 0.9rem;">Couleur:</label>
-                                        <select id="variantColor" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
-                                            <option value="">Choisir couleur</option>
-                                            <option value="Noir">Noir</option>
-                                            <option value="Blanc">Blanc</option>
-                                            <option value="Rouge">Rouge</option>
-                                            <option value="Bleu">Bleu</option>
-                                            <option value="Vert">Vert</option>
-                                            <option value="Jaune">Jaune</option>
-                                            <option value="Rose">Rose</option>
-                                            <option value="Violet">Violet</option>
-                                            <option value="Gris">Gris</option>
-                                            <option value="Marron">Marron</option>
-                                            <option value="Orange">Orange</option>
-                                            <option value="Beige">Beige</option>
-                                            <option value="Bordeaux">Bordeaux</option>
-                                            <option value="Turquoise">Turquoise</option>
-                                            <option value="Or">Or</option>
-                                            <option value="Argent">Argent</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label style="font-weight: 600; color: #333; font-size: 0.9rem;">Taille:</label>
-                                        <select id="variantSize" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
-                                            <option value="">Choisir taille</option>
-                                            <option value="XS">XS</option>
-                                            <option value="S">S</option>
-                                            <option value="M">M</option>
-                                            <option value="L">L</option>
-                                            <option value="XL">XL</option>
-                                            <option value="XXL">XXL</option>
-                                            <option value="36">36</option>
-                                            <option value="38">38</option>
-                                            <option value="40">40</option>
-                                            <option value="42">42</option>
-                                            <option value="44">44</option>
-                                            <option value="46">46</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label style="font-weight: 600; color: #333; font-size: 0.9rem;">Quantité:</label>
-                                        <input type="number" id="variantQuantity" min="0" placeholder="0" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; text-align: center;">
-                                    </div>
-
-                                    <button type="button" onclick="admin.addVariant()" class="add-btn" style="height: 44px; font-weight: 600; background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);">
-                                        <i class="fas fa-plus"></i> Ajouter
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Variants List -->
-                            <div class="variants-list" id="variantsList" style="margin-top: 20px;">
-                                <h5 style="margin-bottom: 10px; color: #666; font-size: 0.9rem;">Variantes ajoutées:</h5>
-                                <div id="variantsContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                                    <span style="color: #999; font-style: italic;">Aucune variante ajoutée</span>
-                                </div>
-                                <div id="totalStockDisplay" style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 6px; color: #2e7d32; font-weight: 600;">
-                                    Stock total: <span id="totalStockCount">0</span> pièces
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="productDescription">Description</label>
-                            <textarea id="productDescription" rows="3"></textarea>
-                        </div>
-                        <div class="modal-actions">
-                            <button type="button" class="cancel-btn" id="cancelProductBtn">Annuler</button>
-                            <button type="submit" class="save-btn">Enregistrer</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <script src="admin.js"></script>
+    <!--
+        ========================================================================
+        JAVASCRIPT FILES (load order matters)
+        ========================================================================
+        1. js/products.js : Product data model and utility functions.
+           - Defines product class/structure.
+           - Handles product CRUD operations on localStorage.
+
+        2. js/admin.js    : Main admin panel controller.
+           - Login authentication logic.
+           - Dashboard initialization and tab navigation.
+           - Stats calculation from order data.
+           - Order rendering and management (filter, clear).
+           - Product form handling (add, edit, delete).
+        ========================================================================
+    -->
+    <script src="js/products.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>

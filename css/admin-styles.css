@@ -1,0 +1,2056 @@
+/* ============================================================================
+   admin-styles.css - Stylesheet for the Monalisa Store admin dashboard
+   Covers login, order management, product CRUD, inventory tracking,
+   profit reporting, and responsive layouts for admin users
+   ============================================================================ */
+
+/* ---- Global resets and base styles ---- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #f5f5f5;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* ============================================================================
+   LOGIN SCREEN - Centered card with logo and credentials form
+   ============================================================================ */
+
+/* Login Screen */
+.login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+}
+
+.login-container {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.login-header {
+    margin-bottom: 2rem;
+}
+
+.login-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+}
+
+.login-header h2 {
+    color: #e91e63;
+    margin-bottom: 0.5rem;
+}
+
+.login-header p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.login-form {
+    margin-top: 2rem;
+}
+
+.form-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-help-text {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+    font-size: 0.85rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 15px 50px 15px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #e91e63;
+}
+
+.form-group i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(45deg, #e91e63, #f06292);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+}
+
+/* ============================================================================
+   ADMIN DASHBOARD - Main wrapper for the entire admin interface
+   ============================================================================ */
+
+/* Admin Dashboard */
+.admin-dashboard {
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+.admin-dashboard.hidden {
+    display: none !important;
+}
+
+/* ============================================================================
+   HEADER - Sticky top bar with logo, refresh, and logout buttons
+   ============================================================================ */
+
+/* Header */
+.admin-header {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.header-left h1 {
+    color: #e91e63;
+    font-size: 1.5rem;
+}
+
+.header-right {
+    display: flex;
+    gap: 1rem;
+}
+
+.refresh-btn,
+.logout-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.refresh-btn {
+    background: #28a745;
+    color: white;
+}
+
+.refresh-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.logout-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.logout-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+/* ============================================================================
+   NAVIGATION TABS - Horizontal tab bar for switching admin sections
+   ============================================================================ */
+
+/* Navigation Tabs */
+.admin-nav {
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 10;
+    cursor: pointer;
+    width: 100%;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0 2rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.nav-tab {
+    padding: 1rem 2rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 11;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.nav-tab:hover {
+    color: #e91e63;
+}
+
+.nav-tab.active {
+    color: #e91e63;
+    border-bottom-color: #e91e63;
+}
+
+/* ============================================================================
+   STATS SECTION - KPI cards showing orders, revenue, profit, etc.
+   ============================================================================ */
+
+/* Stats Section */
+.stats-section {
+    padding: 2rem 0;
+    width: 100%;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.stat-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.stat-icon i {
+    position: relative;
+    z-index: 1;
+}
+
+.stat-card:nth-child(1) .stat-icon {
+    background: linear-gradient(45deg, #e91e63, #f06292);
+}
+
+.stat-card:nth-child(2) .stat-icon {
+    background: linear-gradient(45deg, #2196f3, #64b5f6);
+}
+
+.stat-card:nth-child(3) .stat-icon {
+    background: linear-gradient(45deg, #4caf50, #81c784);
+}
+
+.stat-card:nth-child(4) .stat-icon {
+    background: linear-gradient(45deg, #ff9800, #ffb74d);
+}
+
+.stat-card:nth-child(5) .stat-icon {
+    background: linear-gradient(45deg, #9c27b0, #ba68c8);
+}
+
+.stat-card:nth-child(6) .stat-icon {
+    background: linear-gradient(45deg, #00bcd4, #4dd0e1);
+}
+
+.stat-info h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+}
+
+.stat-info p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+/* ============================================================================
+   ORDERS SECTION - Order list with filters, customer info, and actions
+   ============================================================================ */
+
+/* Orders Section */
+.orders-section {
+    padding: 2rem 0;
+    width: 100%;
+    overflow-x: visible;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    width: 100%;
+}
+
+.section-header h2 {
+    color: #333;
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filters select {
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+.clear-all-btn {
+    padding: 10px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.clear-all-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+.orders-container {
+    background: white;
+    border-radius: 15px;
+    min-height: 400px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    overflow: visible;
+}
+
+.no-orders {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    color: #999;
+}
+
+.no-orders i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* Order Card */
+/* Order Status Badges */
+.order-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+}
+
+.order-status-badge.new {
+    background: #fff3e0;
+    color: #e65100;
+    border-left: 4px solid #ff9800;
+}
+
+.order-status-badge.confirmed {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #4caf50;
+}
+
+.order-status-badge.completed {
+    background: #e3f2fd;
+    color: #1565c0;
+    border-left: 4px solid #2196f3;
+}
+
+.order-card {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 1.5rem;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.order-card:hover {
+    background-color: #f8f9fa;
+}
+
+.order-card:last-child {
+    border-bottom: none;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.order-id {
+    font-weight: 600;
+    color: #e91e63;
+    font-size: 1.1rem;
+}
+
+.order-date {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.customer-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.customer-info h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.customer-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.customer-details div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+}
+
+.customer-details i {
+    color: #e91e63;
+    width: 16px;
+}
+
+.customer-notes {
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #666;
+}
+
+.order-items {
+    margin-bottom: 1rem;
+}
+
+.order-items h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.items-list {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-name {
+    font-weight: 500;
+    color: #333;
+}
+
+.item-specs {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.item-price {
+    font-weight: 600;
+    color: #e91e63;
+}
+
+.order-totals {
+    background: #e8f5e8;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.order-totals h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.totals-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-line.final-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    border-top: 1px solid #d4edda;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.order-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.confirm-btn {
+    background: #4caf50;
+    color: white;
+}
+
+.confirm-btn:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+}
+
+.whatsapp-btn {
+    background: #25d366;
+    color: white;
+}
+
+.whatsapp-btn:hover {
+    background: #22c55e;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+}
+
+/* ============================================================================
+   PRODUCTS SECTION - Product grid with add/edit/delete functionality
+   ============================================================================ */
+
+/* Products Section */
+.products-section {
+    padding: 2rem 0;
+    width: 100%;
+    overflow-x: visible;
+}
+
+.add-product-btn {
+    padding: 10px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-product-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+.product-form-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.product-form-container h3 {
+    color: #e91e63;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.product-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.product-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.product-form input,
+.product-form select,
+.product-form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s ease;
+}
+
+.product-form input:focus,
+.product-form select:focus,
+.product-form textarea:focus {
+    outline: none;
+    border-color: #e91e63;
+}
+
+.image-url-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    transition: border-color 0.3s ease;
+}
+
+.image-url-row:hover {
+    border-color: #e91e63;
+}
+
+.image-url-row input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+.image-url-row input:focus {
+    outline: none;
+    border-color: #e91e63;
+}
+
+.image-url-row input::placeholder {
+    color: #999;
+}
+
+.add-image-btn,
+.remove-image-btn {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    min-height: 42px;
+    font-size: 1rem;
+}
+
+.add-image-btn {
+    background: linear-gradient(135deg, #4caf50, #81c784);
+}
+
+.add-image-btn:hover {
+    background: linear-gradient(135deg, #388e3c, #66bb6a);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.add-image-btn:active {
+    transform: translateY(0);
+}
+
+.remove-image-btn {
+    background: linear-gradient(135deg, #f44336, #e57373);
+}
+
+.remove-image-btn:hover {
+    background: linear-gradient(135deg, #d32f2f, #ef5350);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+}
+
+.remove-image-btn:active {
+    transform: translateY(0);
+}
+
+.image-help-text {
+    color: #666;
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: #e91e63;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #d81b60;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.product-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-card-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.admin-product-image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-image-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.admin-image-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    pointer-events: all;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    color: #333;
+}
+
+.product-card:hover .admin-image-btn {
+    opacity: 1;
+}
+
+.admin-image-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.admin-image-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    pointer-events: all;
+    z-index: 2;
+}
+
+.admin-image-dots .admin-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid white;
+}
+
+.admin-image-dots .admin-dot.active {
+    background: white;
+    transform: scale(1.2);
+}
+
+.admin-image-dots .admin-dot:hover {
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.image-count-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 3;
+}
+
+.product-card-body {
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.product-card-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.product-card-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #e91e63;
+    margin-bottom: 0.5rem;
+}
+
+.product-card-profit-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-radius: 6px;
+    border-left: 3px solid #4caf50;
+}
+
+.cost-price {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.profit-margin {
+    font-size: 0.85rem;
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.product-profit-summary {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid #4caf50;
+}
+
+.profit-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #2e7d32;
+    margin-bottom: 0.3rem;
+}
+
+.profit-line:last-child {
+    margin-bottom: 0;
+}
+
+.profit-line i {
+    font-size: 0.9rem;
+}
+
+.profit-line strong {
+    font-weight: 700;
+}
+
+.product-card-category {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.product-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+}
+
+.product-card-sizes,
+.product-card-colors {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.product-card-colors {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+}
+
+.product-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+}
+
+.edit-btn,
+.delete-btn,
+.inventory-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.edit-btn {
+    background: #2196f3;
+    color: white;
+}
+
+.edit-btn:hover {
+    background: #1976d2;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+}
+
+.no-products {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: #999;
+}
+
+.no-products i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .header-right {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .refresh-btn,
+    .logout-btn {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-buttons,
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .header-buttons button,
+    .filters select,
+    .filters button {
+        width: 100%;
+    }
+
+    .customer-details {
+        grid-template-columns: 1fr;
+    }
+
+    .order-actions {
+        flex-direction: column;
+    }
+
+    .login-container {
+        margin: 1rem;
+        padding: 2rem;
+    }
+
+    .nav-tabs {
+        padding: 0 1rem;
+        overflow-x: auto;
+    }
+
+    .nav-tab {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================================
+   INVENTORY MANAGEMENT - Stock status badges, inventory tables, and modals
+   ============================================================================ */
+
+/* Inventory Management Styles */
+.product-card {
+    position: relative;
+}
+
+.product-card-status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-card-status-badge.in-stock {
+    background: linear-gradient(45deg, #4caf50, #81c784);
+    color: white;
+}
+
+.product-card-status-badge.low-stock {
+    background: linear-gradient(45deg, #ff9800, #ffb74d);
+    color: white;
+}
+
+.product-card-status-badge.sold-out {
+    background: linear-gradient(45deg, #f44336, #e57373);
+    color: white;
+}
+
+.sold-out-product {
+    opacity: 0.7;
+    border: 2px solid #f44336;
+}
+
+.inventory-details {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.inventory-details h5 {
+    font-size: 0.85rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.inventory-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    background: white;
+}
+
+.inventory-item.available {
+    background: #e8f5e9;
+    border-left: 3px solid #4caf50;
+}
+
+.inventory-item.low {
+    background: #fff3e0;
+    border-left: 3px solid #ff9800;
+}
+
+.inventory-item.out {
+    background: #ffebee;
+    border-left: 3px solid #f44336;
+    opacity: 0.6;
+}
+
+.inventory-item.more {
+    background: #e3f2fd;
+    border-left: 3px solid #2196f3;
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.item-variant {
+    font-weight: 500;
+    color: #333;
+}
+
+.item-stock {
+    font-weight: 600;
+    color: #666;
+}
+
+.inventory-btn {
+    background: #ff9800;
+    color: white;
+}
+
+.inventory-btn:hover {
+    background: #f57c00;
+}
+
+/* ---- Full-screen inventory management modal with animations ---- */
+/* Inventory Modal */
+.inventory-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.inventory-modal-content {
+    background: white;
+    border-radius: 15px;
+    max-width: 900px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+}
+
+.inventory-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-modal {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.inventory-body {
+    padding: 2rem;
+}
+
+.inventory-summary {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.summary-item {
+    font-size: 1rem;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-badge.sold-out {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.in-stock {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.profit-badge {
+    background: linear-gradient(135deg, #4caf50, #81c784);
+    color: white;
+    font-weight: 700;
+}
+
+.profit-summary-box {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #4caf50;
+}
+
+.profit-summary-box h4 {
+    margin: 0 0 1rem 0;
+    color: #2e7d32;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profit-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.profit-stat {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.profit-stat-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.profit-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.profit-stat-highlight {
+    background: linear-gradient(135deg, #4caf50, #81c784);
+    color: white;
+}
+
+.profit-stat-highlight .profit-stat-value {
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* ---- Green-highlighted profit values in tables ---- */
+.profit-cell {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+/* ============================================================================
+   PROFIT REPORT MODAL - Overview cards, today's profit, and product breakdown
+   ============================================================================ */
+
+/* Profit Report Modal */
+.profit-report-btn {
+    padding: 10px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profit-report-btn:hover {
+    background: #218838;
+    transform: translateY(-2px);
+}
+
+.profit-report-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.profit-report-content {
+    background: white;
+    border-radius: 15px;
+    max-width: 1100px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+.profit-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #4caf50 0%, #81c784 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+}
+
+.profit-report-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profit-report-body {
+    padding: 2rem;
+}
+
+.profit-overview h4,
+.today-profit h4,
+.inventory-value h4,
+.product-breakdown h4 {
+    color: #2e7d32;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.overview-item {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #e0e0e0;
+}
+
+.overview-item.highlight {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border-color: #4caf50;
+}
+
+.overview-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.overview-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.overview-item.highlight .overview-value {
+    color: #2e7d32;
+    font-size: 2rem;
+}
+
+.today-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.today-item {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.today-item.highlight {
+    background: linear-gradient(135deg, #4caf50, #81c784);
+    color: white;
+}
+
+.today-label {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.today-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.today-item.highlight .today-value {
+    color: white;
+    font-size: 1.8rem;
+}
+
+.inventory-value-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    border-left: 4px solid #ff9800;
+}
+
+.inventory-value-display .inventory-label {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.inventory-value-display .inventory-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f57c00;
+}
+
+.product-profit-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-profit-table thead {
+    background: #e8f5e9;
+}
+
+.product-profit-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #2e7d32;
+    border-bottom: 2px solid #4caf50;
+}
+
+.product-profit-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.product-profit-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.profit-highlight {
+    color: #2e7d32;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Sales Log Section */
+.sales-log {
+    margin-top: 2rem;
+}
+
+.sales-log h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sales-log-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.sales-log-table th,
+.sales-log-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+}
+
+.sales-log-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.85rem;
+}
+
+.sales-log-table tbody tr:hover {
+    background: #f0f8ff;
+}
+
+.no-sales {
+    text-align: center;
+    padding: 2rem;
+    color: #999;
+    font-style: italic;
+}
+
+.sales-log.empty {
+    margin-top: 2rem;
+}
+
+/* Responsive for profit report */
+@media (max-width: 768px) {
+    .profit-report-content {
+        overflow-y: auto;
+        scrollbar-gutter: stable;
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .profit-report-header {
+        padding: 1rem;
+    }
+
+    .profit-report-body {
+        padding: 1rem;
+    }
+
+    .overview-grid,
+    .today-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .overview-value,
+    .today-value,
+    .inventory-value {
+        font-size: 1.5rem;
+    }
+
+    .product-profit-table {
+        font-size: 0.85rem;
+    }
+
+    .product-profit-table th,
+    .product-profit-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    /* Sales Log Mobile */
+    .sales-log-table {
+        font-size: 0.75rem;
+    }
+
+    .sales-log-table th,
+    .sales-log-table td {
+        padding: 8px 6px;
+    }
+
+    .sales-log-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .inventory-value-display {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+.inventory-table thead {
+    background: #f5f5f5;
+}
+
+.inventory-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.inventory-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.inventory-table tbody tr.available {
+    background: #e8f5e9;
+}
+
+.inventory-table tbody tr.low {
+    background: #fff3e0;
+}
+
+.inventory-table tbody tr.out {
+    background: #ffebee;
+    opacity: 0.7;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 0.5rem;
+}
+
+.btn-success {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #388e3c;
+}
+
+.btn-danger {
+    background: #f44336;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #d32f2f;
+}
+
+.btn-warning {
+    background: #ff9800;
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #f57c00;
+}
+
+.inventory-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.inventory-actions .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Responsive for inventory modal */
+@media (max-width: 768px) {
+    .inventory-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+
+    .inventory-header {
+        padding: 1rem;
+    }
+
+    .inventory-body {
+        padding: 1rem;
+    }
+
+    .inventory-summary {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .inventory-table {
+        font-size: 0.85rem;
+    }
+
+    .inventory-table th,
+    .inventory-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .btn-small {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+
+    .inventory-actions {
+        flex-direction: column;
+    }
+
+    .inventory-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: 1rem;
+    }
+
+    .order-status-badge {
+        font-size: 0.8rem;
+        padding: 6px 12px;
+    }
+
+    .order-actions {
+        gap: 0.5rem;
+    }
+}
+
+    .login-container {
+        padding: 1.5rem;
+    }
+
+    .stats-grid {
+        gap: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
+    }
+
+    .order-card {
+        padding: 1rem;
+    }

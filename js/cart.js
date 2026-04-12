@@ -102,6 +102,7 @@ class ShoppingCart {
             return;
         }
 
+<<<<<<< HEAD:cart.js
         // Check inventory availability
         const inventoryKey = `${size}_${color}`;
         const availableStock = product.inventory?.[inventoryKey]?.quantity || 999;
@@ -118,6 +119,16 @@ class ShoppingCart {
 
         if (totalRequestedQuantity > availableStock) {
             alert(`Désolé, seulement ${availableStock} pièces disponibles en stock (${size}, ${color}).`);
+=======
+        // Check available stock before adding to cart
+        const availableStock = ProductManager.getStock(productId, size, color);
+        const currentInCart = this.items.find(item => 
+            item.productId === productId && item.size === size && item.color === color
+        )?.quantity || 0;
+        
+        if (availableStock < (currentInCart + quantity)) {
+            alert(`Sorry, only ${availableStock - currentInCart} more item(s) available in ${size}/${color}`);
+>>>>>>> 44c3494 (so edit about a store):js/cart.js
             return;
         }
 
@@ -238,12 +249,8 @@ class ShoppingCart {
     }
 
     findProduct(productId) {
-        // Search through all product categories
-        for (const category in products) {
-            const product = products[category].find(p => p.id === productId);
-            if (product) return product;
-        }
-        return null;
+        // Search through ProductManager
+        return ProductManager.getProductById(productId);
     }
 
     saveCart() {
@@ -510,6 +517,9 @@ class ShoppingCart {
         const orderId = this.saveOrderToAdmin(orderData);
         console.log('Order saved with ID:', orderId);
 
+        // Deduct inventory for each item in the order
+        this.deductInventoryForOrder(orderData.items);
+
         // Clear cart and close modals
         this.clearCart();
         this.closeCart();
@@ -517,6 +527,36 @@ class ShoppingCart {
 
         // Show green success notification
         this.showOrderSuccessNotification();
+    }
+
+    deductInventoryForOrder(items) {
+        items.forEach(item => {
+            // Find the product to get its ID
+            const product = ProductManager.getAllProducts().find(p => 
+                p.name === item.name && 
+                p.sizes.includes(item.size) && 
+                p.colors.includes(item.color)
+            );
+            
+            if (product) {
+                const success = ProductManager.deductStock(product.id, item.size, item.color, item.quantity);
+                if (!success) {
+                    console.warn(`Failed to deduct stock for ${item.name} - ${item.size}/${item.color}`);
+                }
+            }
+        });
+        
+        // Check and remove sold out products
+        const removedCount = ProductManager.removeSoldOutProducts();
+        if (removedCount > 0) {
+            console.log(`Removed ${removedCount} sold-out product(s) from store`);
+        }
+        
+        // Always refresh product display to show current availability
+        if (window.productDisplay) {
+            window.productDisplay.displayProducts();
+            console.log('Product display refreshed after order');
+        }
     }
 
     getCityDisplayName(cityKey) {
@@ -627,6 +667,7 @@ class ProductDisplay {
 
     displayProducts() {
         const grid = document.getElementById('productsGrid');
+<<<<<<< HEAD:cart.js
         if (!grid) {
             console.error('productsGrid element not found');
             return;
@@ -700,6 +741,112 @@ class ProductDisplay {
         }
 
         return text || 'Variantes disponibles';
+=======
+        const allProducts = ProductManager.getProductsByCategory(this.currentFilter);
+        
+        // Debug: Log products
+        console.log('=== Product Display Debug ===');
+        console.log('All products in localStorage:', ProductManager.getAllProducts().length);
+        console.log('Products after filter:', allProducts.length);
+        console.log('Current filter:', this.currentFilter);
+        console.log('Products data:', allProducts);
+        console.log('===========================');
+
+        // Show empty state if no products
+        if (allProducts.length === 0) {
+            grid.innerHTML = `
+                <div class="no-products-message">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No products available</h3>
+                    <p>Check back soon or browse other categories!</p>
+                </div>
+            `;
+            return;
+        }
+
+        grid.innerHTML = allProducts.map(product => {
+            const images = product.images || (product.image ? [product.image] : []);
+            const mainImage = images.length > 0 ? images[0] : 'https://via.placeholder.com/300x400/E91E63/FFFFFF?text=No+Image';
+            
+            return `
+            <div class="product-card" data-product-id="${product.id}">
+                <div class="product-image">
+                    <img src="${mainImage}" alt="${product.name}" loading="lazy" data-product-images='${JSON.stringify(images)}'>
+                    ${images.length > 1 ? `
+                        <div class="image-nav">
+                            <button class="image-nav-btn prev-btn" onclick="productDisplay.changeImage('${product.id}', -1)">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="image-nav-btn next-btn" onclick="productDisplay.changeImage('${product.id}', 1)">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="image-dots">
+                            ${images.map((_, idx) => `<span class="dot ${idx === 0 ? 'active' : ''}" onclick="productDisplay.setImage('${product.id}', ${idx})"></span>`).join('')}
+                        </div>
+                    ` : ''}
+                    <div class="product-overlay">
+                        <button class="btn btn-primary view-product" onclick="productDisplay.openModal('${product.id}')">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-price">${product.price} MAD</p>
+                    <div class="product-meta">
+                        <span class="available-sizes">Sizes: ${product.sizes.join(', ')}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        }).join('');
+    }
+
+    changeImage(productId, direction) {
+        const card = document.querySelector(`[data-product-id="${productId}"]`);
+        if (!card) return;
+        
+        const img = card.querySelector('img');
+        if (!img) return;
+        
+        const images = JSON.parse(img.dataset.productImages || '[]');
+        if (images.length <= 1) return;
+        
+        let currentIndex = images.indexOf(img.src);
+        if (currentIndex === -1) currentIndex = 0;
+        
+        let newIndex = currentIndex + direction;
+        if (newIndex < 0) newIndex = images.length - 1;
+        if (newIndex >= images.length) newIndex = 0;
+        
+        img.src = images[newIndex];
+        
+        // Update dots
+        const dots = card.querySelectorAll('.image-dots .dot');
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === newIndex);
+        });
+    }
+
+    setImage(productId, index) {
+        const card = document.querySelector(`[data-product-id="${productId}"]`);
+        if (!card) return;
+        
+        const img = card.querySelector('img');
+        if (!img) return;
+        
+        const images = JSON.parse(img.dataset.productImages || '[]');
+        if (index >= 0 && index < images.length) {
+            img.src = images[index];
+            
+            // Update dots
+            const dots = card.querySelectorAll('.image-dots .dot');
+            dots.forEach((dot, idx) => {
+                dot.classList.toggle('active', idx === index);
+            });
+        }
+>>>>>>> 44c3494 (so edit about a store):js/cart.js
     }
 
     openModal(productId) {
@@ -728,9 +875,13 @@ class ProductDisplay {
         this.populateColorOptions();
 
         // Reset quantity
+<<<<<<< HEAD:cart.js
         document.getElementById('quantityInput').value = 1;
         this.updateQuantityLimits();
         this.showAvailabilityInfo();
+=======
+        document.getElementById('quantitySelect').value = 1;
+>>>>>>> 44c3494 (so edit about a store):js/cart.js
 
         // Add event listeners for size/color change
         const sizeSelect = document.getElementById('sizeSelect');
@@ -913,7 +1064,7 @@ class ProductDisplay {
 
         const size = document.getElementById('sizeSelect').value;
         const color = document.getElementById('colorSelect').value;
-        const quantity = parseInt(document.getElementById('quantityInput').value);
+        const quantity = parseInt(document.getElementById('quantitySelect').value);
 
         if (!size || !color || quantity <= 0) {
             alert('Veuillez sélectionner la taille, la couleur et la quantité.');
@@ -933,6 +1084,62 @@ class ProductDisplay {
         cart.addItem(this.currentProductId, size, color, quantity);
         this.closeModal();
     }
+<<<<<<< HEAD:cart.js
+=======
+
+    findProduct(productId) {
+        return ProductManager.getProductById(productId);
+    }
+}
+
+// Simple function to open product modal (for hardcoded products)
+function openProductModal(productId) {
+    if (window.productDisplay && window.productDisplay.openModal) {
+        window.productDisplay.openModal(productId);
+    } else {
+        // Fallback: find product and open modal manually
+        const product = findProductById(productId);
+        if (product) {
+            showProductModal(product);
+        }
+    }
+}
+
+// Helper function to find product by ID
+function findProductById(productId) {
+    return ProductManager.getProductById(productId);
+}
+
+// Simple modal display function
+function showProductModal(product) {
+    // Populate modal with product data
+    document.getElementById('modalProductImage').src = product.image;
+    document.getElementById('modalProductName').textContent = product.name;
+    document.getElementById('modalProductPrice').textContent = `${product.price} MAD`;
+    document.getElementById('modalProductDescription').textContent = product.description;
+
+    // Populate size options
+    const sizeSelect = document.getElementById('sizeSelect');
+    sizeSelect.innerHTML = product.sizes.map(size =>
+        `<option value="${size}">${size}</option>`
+    ).join('');
+
+    // Populate color options
+    const colorSelect = document.getElementById('colorSelect');
+    colorSelect.innerHTML = product.colors.map(color =>
+        `<option value="${color}">${color}</option>`
+    ).join('');
+
+    // Reset quantity
+    document.getElementById('quantityInput').value = 1;
+
+    // Store current product ID
+    window.currentProductId = product.id;
+
+    // Show modal
+    document.getElementById('productModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+>>>>>>> 44c3494 (so edit about a store):js/cart.js
 }
 
 // Initialize product display after DOM is loaded

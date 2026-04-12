@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Character encoding and responsive viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monalisa Store - Women's Fashion</title>
+    
+    <!-- Stylesheets: main styles + mobile responsive overrides -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/mobile-styles.css">
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins font family -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Logo and brand -->
+            <div class="nav-logo">
+                <img src="image/logo.jpg" alt="Monalisa Logo">
+                <h2>Monalisa</h2>
+            </div>
+            <!-- Navigation links (hidden on mobile, shown via hamburger) -->
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#home" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="#shop" class="nav-link">Shop</a></li>
+                <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            <!-- Shopping cart button -->
+            <div class="nav-cart">
+                <button class="cart-btn" id="cartBtn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span> <!-- Updates dynamically -->
+                </button>
+            </div>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Welcome to <span class="brand-name">Monalisa</span></h1>
+            <p class="hero-subtitle">Your destination for elegant women's fashion</p>
+            <p class="hero-description">Discover our curated collection of stylish clothing, accessories, and footwear that celebrates your unique style.</p>
+            <div class="hero-buttons">
+                <a href="#shop" class="btn btn-primary">Shop Now</a>
+                <a href="https://www.instagram.com/monalisa08.store?igsh=ZWRoenQ5MzVnbnI1" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                    <i class="fab fa-instagram"></i> Follow Us
+                </a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="hero-image-placeholder">
+                <i class="fas fa-tshirt"></i>
+                <p>Fashion Collection</p>
+            </div>
+        </div>
+    </section>
+    <section id="shop" class="shop">
+        <div class="container">
+            <h2 class="section-title">Shop Our Collection</h2>
+            <div class="category-filter">
+                <button class="filter-btn active" data-category="all">All Products</button>
+                <button class="filter-btn" data-category="pants">Pants</button>
+                <button class="filter-btn" data-category="blouses">Blouses</button>
+                <button class="filter-btn" data-category="shirts">Shirts</button>
+                <button class="filter-btn" data-category="accessories">Accessories</button>
+                <button class="filter-btn" data-category="handbags">Handbags</button>
+                <button class="filter-btn" data-category="footwear">Footwear</button>
+                <button class="filter-btn" data-category="perfumes">Perfumes</button>
+                <button class="filter-btn" data-category="pajamas">Pajamas</button>
+            </div>
+            
+            <!-- Products Grid - Dynamically populated by ProductDisplay.displayProducts() -->
+            <!-- Products are loaded from localStorage and filtered by category -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be loaded dynamically from localStorage -->
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About Monalisa</h2>
+                    <p>At Monalisa, we believe every woman deserves to feel confident and beautiful in what she wears. Our carefully curated collection features the latest trends in women's fashion, from casual everyday wear to elegant pieces for special occasions.</p>
+                    <p>We offer a wide range of products including stylish pants, elegant blouses, trendy accessories, comfortable footwear, and luxurious perfumes. Our mission is to provide high-quality fashion that empowers women to express their unique style.</p>
+                    <div class="about-features">
+                        <div class="feature">
+                            <i class="fas fa-truck"></i>
+                            <span>Fast Delivery</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-gem"></i>
+                            <span>Quality Products</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-heart"></i>
+                            <span>Customer Satisfaction</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="about-image-placeholder">
+                        <i class="fas fa-store"></i>
+                        <p>Our Store</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Get In Touch</h2>
+            <div class="contact-grid">
+                <!-- Left Side: Contact Information -->
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h3>Phone</h3>
+                            <p>+212721-764296</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-whatsapp"></i>
+                        <div>
+                            <h3>WhatsApp</h3>
+                            <p>+212707-741353</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Email</h3>
+                            <p>monalisastoree3@gmail.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fab fa-instagram"></i>
+                        <div>
+                            <h3>Instagram</h3>
+                            <a href="https://www.instagram.com/monalisa08.store?igsh=ZWRoenQ5MzVnbnI1" target="_blank" rel="noopener noreferrer">@monalisa08.store</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Side: Contact Form -->
+                <div class="contact-form">
+                    <h3>Send us a message</h3>
+                    <form>
+                        <div class="form-group">
+                            <input type="text" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea placeholder="Your Message" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Monalisa</h3>
+                    <p>Your destination for elegant women's fashion</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#shop">Shop</a></li>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://www.instagram.com/monalisa08.store?igsh=ZWRoenQ5MzVnbnI1" target="_blank" rel="noopener noreferrer" title="Monalisa on Instagram" aria-label="Monalisa on Instagram">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                            <span class="sr-only">Monalisa on Instagram</span>
+                        </a>
+                        <a href="https://wa.me/212707741353" target="_blank" rel="noopener noreferrer" title="Monalisa on WhatsApp" aria-label="Monalisa on WhatsApp">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                            <span class="sr-only">Monalisa on WhatsApp</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Monalisa Store. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body">
+                <div class="product-image">
+                    <img id="modalProductImage" src="" alt="">
+                </div>
+                <div class="product-details">
+                    <h2 id="modalProductName"></h2>
+                    <p class="product-price" id="modalProductPrice"></p>
+                    <p class="product-description" id="modalProductDescription"></p>
+
+                    <div class="product-options">
+                        <div class="size-selection">
+                            <label for="sizeSelect">Size:</label>
+                            <select id="sizeSelect" name="size" aria-label="Size">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="color-selection">
+                            <label for="colorSelect">Color:</label>
+                            <select id="colorSelect" name="color" aria-label="Color">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="quantity-selection">
+                            <label for="quantitySelect">Quantity:</label>
+                            <select id="quantitySelect" name="quantity" aria-label="Quantity">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary add-to-cart" id="addToCartBtn">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>Shopping Cart</h3>
+            <span class="close-cart" id="closeCart">&times;</span>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart">Your cart is empty</div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">0 MAD</span>
+            </div>
+            <div class="cart-actions">
+                <button class="btn btn-secondary" id="whatsappBtn">
+                    <i class="fab fa-whatsapp"></i> Quick Order
+                </button>
+                <button class="btn btn-primary" id="orderBtn">
+                    <i class="fas fa-shopping-bag"></i> Detailed Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div id="cartOverlay" class="cart-overlay"></div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal checkout-modal">
+        <div class="modal-content checkout-content">
+            <span class="close" id="closeCheckout">&times;</span>
+            <div class="checkout-header">
+                <h2>Complete Your Order</h2>
+            </div>
+            <div class="checkout-body">
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label for="customerName">Full Name *</label>
+                        <input type="text" id="customerName" name="customerName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone Number *</label>
+                        <input type="tel" id="customerPhone" name="customerPhone" placeholder="e.g., +212 600 000 000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Delivery Address *</label>
+                        <input type="text" id="customerAddress" name="customerAddress" placeholder="Enter your delivery address" required>
+                    </div>
+                    <div class="form-group" id="deliveryInfo" style="display: none;">
+                        <label>Delivery Cost:</label>
+                        <div class="delivery-info-display">
+                            <span class="detected-city">City: <span id="detectedCityName">-</span></span>
+                            <span class="delivery-cost">Cost: <span id="detectedDeliveryCost">-</span></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderNotes">Order Notes (Optional)</label>
+                        <textarea id="orderNotes" name="orderNotes" rows="3" placeholder="Any special instructions..."></textarea>
+                    </div>
+
+                    <div class="order-summary-checkout" id="checkoutOrderItems"></div>
+
+                    <div class="checkout-totals">
+                        <div class="summary-line">
+                            <span>Subtotal:</span>
+                            <span id="checkoutSubtotal">0 MAD</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Delivery:</span>
+                            <span id="checkoutDeliveryCost">0 MAD</span>
+                        </div>
+                        <div class="summary-total">
+                            <span>Total:</span>
+                            <span id="checkoutTotal">0 MAD</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelCheckout">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Confirm & Send via WhatsApp</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/products.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

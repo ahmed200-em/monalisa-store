@@ -1,3 +1,9 @@
+/* ============================================================================
+   mobile-styles.css - Mobile-specific overrides for Monalisa Store
+   Contains media queries for phones (<768px), extra-small phones (<480px),
+   touch-device enhancements, high-DPI displays, and landscape orientation
+   ============================================================================ */
+
 /* Enhanced Mobile Styles for Monalisa Store */
 
 /* Mobile-First Approach - Base styles for phones */
@@ -436,6 +442,19 @@
         flex-direction: column;
         text-align: center;
         gap: 0.5rem;
+        padding: 0.8rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature i {
+        font-size: 1.5rem;
+    }
+
+    .feature span {
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 
     .about-image-placeholder {
