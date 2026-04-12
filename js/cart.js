@@ -883,21 +883,25 @@ class ProductDisplay {
 
         if (product.inventory && Object.keys(product.inventory).length > 0) {
             Object.entries(product.inventory).forEach(([key, data]) => {
-                const [size, color] = key.split('_');
-                const availableQty = Math.max(0, (data.quantity || 0) - (data.sold || 0));
+                // Admin uses 'stock', but old code used 'quantity'
+                // Also check for 'sold' or 'reserved'
+                const stock = data.stock || data.quantity || 0;
+                const reserved = data.reserved || data.sold || 0;
+                const availableQty = Math.max(0, stock - reserved);
 
                 if (availableQty > 0) {
                     variants.push({
-                        size,
-                        color,
+                        size: data.size,
+                        color: data.color,
                         key,
                         availableQty,
-                        totalStock: data.quantity || 0
+                        totalStock: stock
                     });
                 }
             });
         }
 
+        console.log('Available variants:', variants.length, variants);
         return variants;
     }
 
