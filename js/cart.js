@@ -617,8 +617,43 @@ class ProductDisplay {
     }
 
     init() {
+        this.bindEvents();
         this.displayProducts();
         this.listenForUpdates();
+    }
+
+    bindEvents() {
+        // Category filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Update active state
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                // Update filter and refresh
+                this.currentFilter = e.target.dataset.category || 'all';
+                this.displayProducts();
+            });
+        });
+
+        // Modal events
+        const modal = document.getElementById('productModal');
+        if (modal) {
+            const closeBtn = modal.querySelector('.close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => this.closeModal());
+            }
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeModal();
+                }
+            });
+        }
+
+        // Add to cart button
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        if (addToCartBtn) {
+            addToCartBtn.addEventListener('click', () => this.addToCart());
+        }
     }
 
     listenForUpdates() {
