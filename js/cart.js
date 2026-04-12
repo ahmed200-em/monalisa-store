@@ -902,28 +902,7 @@ class ProductDisplay {
     }
 
     updateQuantityLimits() {
-        const sizeSelect = document.getElementById('sizeSelect');
-        const colorSelect = document.getElementById('colorSelect');
-        const quantityInput = document.getElementById('quantityInput');
-
-        const selectedSize = sizeSelect.value;
-        const selectedColor = colorSelect.value;
-
-        const variant = this.availableVariants.find(v =>
-            v.size === selectedSize && v.color === selectedColor
-        );
-
-        if (variant && variant.availableQty > 0) {
-            quantityInput.max = variant.availableQty;
-            quantityInput.placeholder = `Max: ${variant.availableQty}`;
-            if (parseInt(quantityInput.value) > variant.availableQty) {
-                quantityInput.value = variant.availableQty;
-            }
-        } else {
-            quantityInput.max = 1;
-            quantityInput.value = 1;
-            quantityInput.placeholder = 'Indisponible';
-        }
+        // Disabled - using quantitySelect dropdown instead of quantityInput
     }
 
     showAvailabilityInfo() {
