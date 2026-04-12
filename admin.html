@@ -64,9 +64,36 @@
             </form>
         </div>
     </div>
-    <!-- Admin Dashboard -->
+
+    <!--
+        ========================================================================
+        ADMIN DASHBOARD (hidden until login)
+        ========================================================================
+        Purpose: Main admin interface containing all management sections.
+
+        Behavior:
+          - Hidden by default via 'hidden' class.
+          - Shown after successful login (JS removes 'hidden' in admin.js).
+          - Contains: header, navigation tabs, stats, orders, products.
+
+        Key IDs:
+          - #adminDashboard : Root container for the entire dashboard.
+        ========================================================================
+    -->
     <div id="adminDashboard" class="admin-dashboard hidden">
-        <!-- Header -->
+
+        <!--
+            ================================================================
+            HEADER: Branding and global actions
+            ================================================================
+            Contains the logo, page title, refresh button, and logout button.
+            Stays at the top of the dashboard.
+
+            Key IDs:
+              - #refreshOrders : Triggers order data refresh (handled in admin.js).
+              - #logoutBtn     : Triggers logout; hides dashboard, shows login screen.
+            ================================================================
+        -->
         <header class="admin-header">
             <div class="header-content">
                 <div class="header-left">
@@ -85,19 +112,6 @@
                 </div>
             </div>
         </header>
-
-        <!-- Navigation Tabs -->
-        <nav class="admin-nav">
-            <button class="nav-tab active" data-tab="orders">
-                <i class="fas fa-shopping-cart"></i> Commandes
-            </button>
-            <button class="nav-tab" data-tab="products">
-                <i class="fas fa-box"></i> Produits
-            </button>
-            <button class="nav-tab" data-tab="analytics">
-                <i class="fas fa-chart-line"></i> Analytiques
-            </button>
-        </nav>
 
         <!--
             ================================================================
@@ -272,88 +286,130 @@
 
         <!--
             ========================================================================
-            PRODUCTS SECTION - Product management grid
+            PRODUCTS SECTION (hidden by default, shown via nav tab)
             ========================================================================
-            Purpose: Display and manage products (add, edit, delete, stock).
+            Purpose: Full product management interface.
+
+            Features:
+              - Add new products
+              - Edit existing products
+              - Delete products
+              - View profit reports
+
+            Layout:
+              - Section header with action buttons (profit report, add product).
+              - Product form (hidden until add/edit is clicked).
+              - Products grid (always visible, shows all managed products).
 
             Key IDs:
-              - #profitReportBtn       : Button to open profit report modal
-              - #addProductBtn         : Button to open product add form
-              - #productFormContainer  : Container for add/edit product form
-              - #productForm           : Form for adding/editing products
-              - #adminProductsGrid     : Dynamic grid where product cards are rendered
+              - #profitReportBtn       : Opens profit report modal/view.
+              - #addProductBtn         : Shows the product form in "add" mode.
+              - #productFormContainer  : Container for the add/edit form; toggled visible/hidden.
+              - #productFormTitle      : Dynamic title changes between "Ajouter" and "Modifier".
+              - #productForm           : The form element; submit handled in admin.js.
+              - #editProductId         : Hidden input storing product ID when editing (empty when adding).
+              - #adminProductsGrid     : Grid displaying all products (rendered by JS).
             ========================================================================
         -->
-        <section class="products-section">
+        <section class="products-section hidden">
             <div class="container">
-                <div class="header-content">
+                <div class="section-header">
                     <h2>Gestion des Produits</h2>
-                    <div class="header-right">
+                    <div class="header-buttons">
+                        <!-- Profit Report: Opens detailed profit analysis -->
                         <button class="profit-report-btn" id="profitReportBtn" title="Voir le rapport de profit">
                             <i class="fas fa-chart-pie"></i> Rapport de Profit
                         </button>
+                        <!-- Add Product: Shows the product form in "add" mode -->
                         <button class="add-product-btn" id="addProductBtn">
                             <i class="fas fa-plus"></i> Ajouter un produit
                         </button>
                     </div>
                 </div>
 
-                <!-- Product Form Container (hidden by default, shown when adding/editing) -->
-                <div class="product-form-container hidden" id="productFormContainer">
-                    <h3 id="productFormTitle">Ajouter un produit</h3>
-                    <form id="productForm">
-                        <input type="hidden" id="editProductId" value="">
-                        
-                        <div class="form-group">
-                            <label for="productName">Nom du produit *</label>
-                            <input type="text" id="productName" placeholder="Nom du produit" required>
-                        </div>
+                <!--
+                    ================================================================
+                    PRODUCT FORM CONTAINER (hidden until add/edit clicked)
+                    ================================================================
+                    Purpose: Form for creating new products or editing existing ones.
 
+                    Behavior:
+                      - Hidden by default; shown when #addProductBtn or an edit button is clicked.
+                      - Form mode tracked by JS (add vs. edit via hidden field #editProductId).
+                      - On submit: validates input, saves to localStorage via products.js.
+                      - Image URL fields can be dynamically added/removed (cloned rows).
+
+                    Form fields:
+                      1. #productName         : Product display name (required).
+                      2. #productPrice        : Selling price in MAD, shown to customers (required).
+                      3. #productCostPrice    : Purchase/cost price in MAD, used for profit calculations.
+                      4. #productCategory     : Category dropdown for filtering/grouping on storefront.
+                      5. #imageUrlsContainer  : Dynamic container for image URL inputs (rows cloned by JS).
+                      6. #productDescription  : Optional product description textarea.
+                      7. #productSizes        : Comma-separated sizes (e.g., "S, M, L, XL").
+                      8. #productColors       : Comma-separated colors (e.g., "Black, White, Red").
+
+                    Form actions:
+                      - #cancelProductForm : Hides the form and clears all fields.
+                      - Form submit        : Validates and persists data to localStorage.
+                    ================================================================
+                -->
+                <div id="productFormContainer" class="product-form-container hidden">
+                    <h3 id="productFormTitle">Ajouter un produit</h3>
+                    <form id="productForm" class="product-form">
+                        <!-- Hidden field: stores the product ID when editing; empty when adding a new product -->
+                        <input type="hidden" id="editProductId">
+
+                        <!-- Row 1: Product name and selling price -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="productPrice">Prix de vente (MAD) *</label>
-                                <input type="number" id="productPrice" min="1" placeholder="Prix de vente" required>
+                                <label for="productName">Nom du produit *</label>
+                                <input type="text" id="productName" required>
                             </div>
                             <div class="form-group">
-                                <label for="productCostPrice">Prix d'achat (MAD) *</label>
-                                <input type="number" id="productCostPrice" min="0" step="0.01" placeholder="Prix que vous avez payé" required>
-                                <small class="form-help-text">Ce prix sera utilisé pour calculer vos profits</small>
+                                <!-- Selling price: displayed to customers, used in order totals -->
+                                <label for="productPrice">Prix de vente (MAD) *</label>
+                                <input type="number" id="productPrice" min="0" required>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="productCategory">Catégorie *</label>
-                            <select id="productCategory" required>
-                                <option value="">Sélectionner une catégorie</option>
-                                <option value="pants">Pantalons</option>
-                                <option value="blouses">Chemisiers</option>
-                                <option value="shirts">Chemises</option>
-                                <option value="accessories">Accessoires</option>
-                                <option value="handbags">Sacs à main</option>
-                                <option value="footwear">Chaussures</option>
-                                <option value="perfumes">Parfums</option>
-                                <option value="pajamas">Pyjamas</option>
-                            </select>
+                        <!-- Row 2: Cost price and product category -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <!-- Cost price: used for profit calculation (selling price - cost = profit) -->
+                                <label for="productCostPrice">Prix d'achat (MAD) *</label>
+                                <input type="number" id="productCostPrice" min="0" step="0.01" placeholder="Prix que vous avez payé" required>
+                                <small class="form-help-text">Ce prix sera utilise pour calculer vos profits</small>
+                            </div>
+                            <div class="form-group">
+                                <!-- Category: used for filtering and grouping products on the storefront -->
+                                <label for="productCategory">Categorie *</label>
+                                <select id="productCategory" required>
+                                    <option value="">Selectionner une categorie</option>
+                                    <option value="pants">Pants</option>
+                                    <option value="blouses">Blouses</option>
+                                    <option value="shirts">Shirts</option>
+                                    <option value="accessories">Accessories</option>
+                                    <option value="handbags">Handbags</option>
+                                    <option value="footwear">Footwear</option>
+                                    <option value="perfumes">Perfumes</option>
+                                    <option value="pajamas">Pajamas</option>
+                                </select>
+                            </div>
                         </div>
 
+                        <!--
+                            IMAGE URLS SECTION
+                            Purpose: Allows multiple image URLs per product.
+                            Structure:
+                              - Each row has a text input (class="product-image-url") and a remove button.
+                              - The "+" button calls admin.addImageUrlField() to clone a new row.
+                              - First row placeholder says "Image principale (URL)" (main image).
+                        -->
                         <div class="form-group">
-                            <label for="productDescription">Description</label>
-                            <textarea id="productDescription" rows="3" placeholder="Description du produit"></textarea>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="productSizes">Tailles (séparées par des virgules) *</label>
-                            <input type="text" id="productSizes" placeholder="Ex: S, M, L, XL" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="productColors">Couleurs (séparées par des virgules) *</label>
-                            <input type="text" id="productColors" placeholder="Ex: Noir, Blanc, Rouge" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Images du produit (URLs)</label>
+                            <label>URLs des images</label>
                             <div id="imageUrlsContainer">
+                                <!-- Template row: first image input; additional rows are cloned by JS -->
                                 <div class="image-url-row">
                                     <input type="text" class="product-image-url" placeholder="Image principale (URL)">
                                     <button type="button" class="add-image-btn" onclick="admin.addImageUrlField()">
@@ -361,25 +417,62 @@
                                     </button>
                                 </div>
                             </div>
+                            <small class="image-help-text">Ajoutez plusieurs images pour le produit</small>
                         </div>
 
+                        <!-- Product description: optional details shown on the storefront product modal -->
+                        <div class="form-group">
+                            <label for="productDescription">Description</label>
+                            <textarea id="productDescription" rows="3"></textarea>
+                        </div>
+
+                        <!-- Row 4: Sizes and Colors (both stored as comma-separated strings) -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <!-- Sizes: stored as comma-separated string, parsed into array for display -->
+                                <label for="productSizes">Tailles (séparees par des virgules) *</label>
+                                <input type="text" id="productSizes" placeholder="S, M, L, XL" required>
+                            </div>
+                            <div class="form-group">
+                                <!-- Colors: stored as comma-separated string, parsed into array for display -->
+                                <label for="productColors">Couleurs (séparees par des virgules) *</label>
+                                <input type="text" id="productColors" placeholder="Black, White, Red" required>
+                            </div>
+                        </div>
+
+                        <!-- Form action buttons: Cancel hides form; Submit validates and saves -->
                         <div class="form-actions">
+                            <!-- Cancel: hides form container and resets all input fields -->
+                            <button type="button" class="btn btn-secondary" id="cancelProductForm">Annuler</button>
+                            <!-- Submit: triggers form validation and persists data to localStorage -->
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save"></i> Enregistrer
-                            </button>
-                            <button type="button" class="btn btn-secondary" id="cancelProductForm">
-                                <i class="fas fa-times"></i> Annuler
                             </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Products Grid: Dynamic content rendered here by admin.js -->
-                <div class="admin-products-grid" id="adminProductsGrid">
-                    <!-- Default placeholder -->
+                <!--
+                    ================================================================
+                    PRODUCTS GRID (admin view)
+                    ================================================================
+                    Purpose: Displays all products as editable cards.
+
+                    Behavior:
+                      - Populated dynamically by admin.js from products in localStorage.
+                      - Each product card is rendered from a JS template.
+                      - Cards include: image, name, price, edit button, delete button.
+
+                    Key IDs:
+                      - #adminProductsGrid : Container where product cards are rendered.
+                      - Default state: Shows "no products" placeholder when grid is empty.
+                    ================================================================
+                -->
+                <div class="products-grid" id="adminProductsGrid">
+                    <!-- Default placeholder: replaced when products are loaded from localStorage -->
                     <div class="no-products">
                         <i class="fas fa-box-open"></i>
-                        <p>Aucun produit pour le moment. Cliquez sur "Ajouter un produit" pour commencer.</p>
+                        <p>Aucun produit pour le moment</p>
                     </div>
                 </div>
             </div>

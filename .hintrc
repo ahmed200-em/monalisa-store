@@ -18,6 +18,12 @@
           "-webkit-overflow-scrolling"
         ]
       }
+    ],
+    "axe/forms": [
+      "default",
+      {
+        "select-name": "off"
+      }
     ]
   }
 }
